@@ -1,0 +1,42 @@
+{
+  "name": "active-rename",
+  "version": "1.0.0",
+  "description": "Interactive file renamer inspired by git",
+  "main": "index.js",
+  "bin": {
+    "arm": "./index.js"
+  },
+  "engines": {
+    "node": ">=10.x"
+  },
+  "scripts": {
+    "lint": "eslint --format=node_modules/eslint-codeframe-formatter .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robcrocombe/active-rename.git"
+  },
+  "author": "Rob Crocombe <me@robcrocombe.com> (http://robcrocombe.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/robcrocombe/active-rename/issues"
+  },
+  "homepage": "https://github.com/robcrocombe/active-rename#readme",
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "devDependencies": {
+    "eslint": "6.5.1",
+    "eslint-codeframe-formatter": "1.0.2",
+    "eslint-config-airbnb-base": "14.0.0",
+    "eslint-plugin-import": "2.18.2"
+  },
+  "dependencies": {
+    "commander": "3.0.2",
+    "fs-extra": "8.1.0",
+    "readline-sync": "1.4.10"
+  }
+}
