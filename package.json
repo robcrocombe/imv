@@ -37,7 +37,10 @@
   "dependencies": {
     "commander": "3.0.2",
     "fs-extra": "8.1.0",
+    "gitconfig": "2.0.8",
     "globby": "10.0.1",
-    "readline-sync": "1.4.10"
+    "open": "6.4.0",
+    "readline-sync": "1.4.10",
+    "tmp": "0.1.0"
   }
 }
