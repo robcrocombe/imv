@@ -3,18 +3,18 @@
 const program = require('commander');
 const glob = require('globby');
 const tmp = require('tmp');
-// const rl = require('readline-sync');
-// const moment = require('moment');
 const fs = require('fs-extra');
 const path = require('path');
 const EOL = require('os').EOL;
+const chalk = require('chalk');
 const { execSync } = require('child_process');
 const { getGitEditor } = require('./git-editor');
+const { validateFiles } = require('./validate-files');
+require('promise.allsettled').shim();
 
 program
   .version('1.0.0')
   .arguments('<glob>')
-  .option('-b, --base <dir>', 'display file paths relative to this directory')
   .option('-e, --editor <editor>', 'use this editor to modify your file paths')
   .parse(process.argv);
 
@@ -25,13 +25,13 @@ if (!input.length) {
   exit(false);
 }
 
+tmp.setGracefulCleanup();
 run();
 
 async function run() {
   const files = input.length > 1 ? input : await glob(input);
   // console.log(files);
 
-  tmp.setGracefulCleanup();
   const dir = tmp.dirSync({ unsafeCleanup: true });
 
   console.log(dir.name);
@@ -39,20 +39,46 @@ async function run() {
   const editor = program.editor || (await getGitEditor());
 
   if (!editor) {
-    console.error(
+    console.error(chalk.red(
       'Your git `config.editor` variable is not set or you are missing `--editor` argument.'
-    );
+    ));
     exit(false);
   }
+
+  const renamePromises = [];
 
   try {
     const tmpFile = path.join(dir.name, 'FILES');
     fs.writeFileSync(tmpFile, files.join(EOL) + EOL, 'utf8');
 
-    const out = execSync(`${editor} ${tmpFile}`);
+    // Open files for renaming
+    execSync(`${editor} ${tmpFile}`);
+
+    const output = fs.readFileSync(tmpFile, 'utf8');
+    const newFiles = output.trim().split(EOL);
+
+    const err = validateFiles(files, newFiles);
+    if (err) {
+      console.error(chalk.red(`Error: ${err}`));
+      exit(false);
+    }
+
+    for (let i = 0; i < newFiles.length; ++i) {
+      const oldFile = files[i];
+      const newFile = newFiles[i];
+
+      const p = fs.rename(oldFile, newFile, err => {
+        if (err) throw err;
+      });
+
+      renamePromises.push(p);
+    }
   } catch (e) {
-    console.error(e);
+    console.error(chalk.red(e));
   }
+
+  await Promise.allSettled(renamePromises);
+  console.log('✨ Done!');
 }
 
 function exit(success) {
