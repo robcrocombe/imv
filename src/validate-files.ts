@@ -1,7 +1,7 @@
-const fs = require('fs-extra');
-const path = require('path');
+import * as fs from 'fs-extra';
+// import * as path from 'path';
 
-function validateFiles(oldFiles, newFiles) {
+export function validateFiles(oldFiles, newFiles) {
   if (oldFiles.length !== newFiles.length) {
     throw (
       'Error: edited file paths do not match the length of the original list.' +
@@ -15,15 +15,11 @@ function validateFiles(oldFiles, newFiles) {
     const oldFile = oldFiles[i];
     const newFile = newFiles[i];
 
-    try {
-      fs.accessSync(oldFile, fs.constants.R_OK | fs.constants.W_OK);
-    } catch (e) {
+    if (!fs.existsSync(oldFile)) {
       throw `Error: cannot read/write "${oldFile}".`;
     }
 
-    try {
-      fs.accessSync(newFile, fs.constants.R_OK | fs.constants.W_OK);
-    } catch (e) {
+    if (fs.existsSync(newFile)) {
       throw `Error: file "${newFile}" already exists.`;
     }
 
@@ -36,5 +32,3 @@ function validateFiles(oldFiles, newFiles) {
 
   return fileMap;
 }
-
-module.exports = { validateFiles };

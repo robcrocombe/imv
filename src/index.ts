@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 
-const program = require('commander');
-const glob = require('globby');
-const tmp = require('tmp');
-const fs = require('fs-extra');
-const path = require('path');
-const EOL = require('os').EOL;
-const chalk = require('chalk');
-const { execSync } = require('child_process');
-const { getGitEditor } = require('./git-editor');
-const { validateFiles } = require('./validate-files');
-require('promise.allsettled').shim();
+import program from 'commander';
+import globby from 'globby';
+import * as tmp from 'tmp';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import { EOL } from 'os';
+import chalk from 'chalk';
+import { execSync } from 'child_process';
+import { getGitEditor } from './git-editor';
+import { validateFiles } from './validate-files';
+// TODO: remove when Promise.allSettled() available
+import allSettled from 'promise.allsettled';
 
 program
   .version('1.0.0')
@@ -29,7 +30,7 @@ tmp.setGracefulCleanup();
 run();
 
 async function run() {
-  const files = input.length > 1 ? input : await glob(input);
+  const files = input.length > 1 ? input : await (globby as any)(input);
   // console.log(files);
 
   const dir = tmp.dirSync({ unsafeCleanup: true });
@@ -57,7 +58,7 @@ async function run() {
     const output = fs.readFileSync(tmpFile, 'utf8');
     const newFiles = output.trim().split(EOL);
 
-    const fileMap = validateFiles(files, newFiles);
+    validateFiles(files, newFiles);
 
     for (let i = 0; i < newFiles.length; ++i) {
       const oldFile = files[i];
@@ -74,7 +75,7 @@ async function run() {
     exit(false);
   }
 
-  await Promise.allSettled(renamePromises);
+  await allSettled(renamePromises);
   console.log('✨ Done!');
 }
 

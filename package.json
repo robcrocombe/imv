@@ -2,14 +2,18 @@
   "name": "active-rename",
   "version": "1.0.0",
   "description": "Interactive file renamer inspired by git",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
+  "files": ["dist/**/*"],
   "bin": {
-    "arm": "./src/index.js"
+    "arm": "./dist/index.js"
   },
   "engines": {
     "node": ">=10.x"
   },
   "scripts": {
+    "start": "tsc -w",
+    "dist": "tsc",
+    "prepublishOnly": "npm run lint && npm run dist",
     "lint": "eslint --format=node_modules/eslint-codeframe-formatter .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -29,12 +33,15 @@
     "trailingComma": "es5"
   },
   "devDependencies": {
+    "@types/fs-extra": "8.0.0",
+    "@types/tmp": "0.1.0",
     "eslint": "6.5.1",
     "eslint-codeframe-formatter": "1.0.2",
     "eslint-config-airbnb-base": "14.0.0",
     "eslint-plugin-import": "2.18.2"
   },
   "dependencies": {
+    "@types/promise.allsettled": "1.0.1",
     "chalk": "2.4.2",
     "commander": "3.0.2",
     "fs-extra": "8.1.0",
@@ -43,6 +50,7 @@
     "open": "6.4.0",
     "promise.allsettled": "1.0.1",
     "readline-sync": "1.4.10",
-    "tmp": "0.1.0"
+    "tmp": "0.1.0",
+    "typescript": "3.6.4"
   }
 }

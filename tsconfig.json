@@ -1,0 +1,19 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": ["es2015", "es2017"],
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

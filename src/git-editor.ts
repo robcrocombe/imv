@@ -1,6 +1,6 @@
-const gitconfig = require('gitconfig');
+import * as gitconfig from 'gitconfig';
 
-async function getGitEditor() {
+export async function getGitEditor() {
   const localPromise = gitconfig.get('core', {
     location: 'local',
   });
@@ -12,5 +12,3 @@ async function getGitEditor() {
     return (localConfig && localConfig.editor) || (globalConfig && globalConfig.editor);
   });
 }
-
-module.exports = { getGitEditor };
