@@ -57,11 +57,7 @@ async function run() {
     const output = fs.readFileSync(tmpFile, 'utf8');
     const newFiles = output.trim().split(EOL);
 
-    const err = validateFiles(files, newFiles);
-    if (err) {
-      console.error(chalk.red(`Error: ${err}`));
-      exit(false);
-    }
+    const fileMap = validateFiles(files, newFiles);
 
     for (let i = 0; i < newFiles.length; ++i) {
       const oldFile = files[i];
@@ -73,8 +69,9 @@ async function run() {
 
       renamePromises.push(p);
     }
-  } catch (e) {
-    console.error(chalk.red(e));
+  } catch (err) {
+    console.error(chalk.red(err));
+    exit(false);
   }
 
   await Promise.allSettled(renamePromises);
