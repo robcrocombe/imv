@@ -1,9 +1,13 @@
 {
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
   "env": {
     "node": true,
     "es6": true
   },
-  "extends": "airbnb-base",
   "rules": {
     "arrow-parens": 0,
     "comma-dangle": 0,
@@ -14,8 +18,9 @@
     "no-unused-expressions": [2, {
       "allowTernary": true
     }],
-    "no-use-before-define": 0,
     "max-len": 0,
-    "strict": [2, "global"]
+    "strict": [2, "global"],
+    "@typescript-eslint/no-use-before-define": 0,
+    "@typescript-eslint/explicit-function-return-type": 0,
   }
 }

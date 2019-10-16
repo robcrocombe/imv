@@ -31,6 +31,7 @@ tmp.setGracefulCleanup();
 run();
 
 async function run() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const files = input.length > 1 ? input : await (globby as any)(input);
   // console.log(files);
 
@@ -41,9 +42,11 @@ async function run() {
   const editor = program.editor || (await getGitEditor());
 
   if (!editor) {
-    console.error(chalk.red(
-      'Your git `config.editor` variable is not set or you are missing `--editor` argument.'
-    ));
+    console.error(
+      chalk.red(
+        'Your git `config.editor` variable is not set or you are missing `--editor` argument.'
+      )
+    );
     exit(false);
   }
 

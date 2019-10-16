@@ -16,7 +16,7 @@
     "start": "tsc -w",
     "dist": "tsc",
     "prepublishOnly": "npm run lint && npm run dist",
-    "lint": "eslint --format=node_modules/eslint-codeframe-formatter .",
+    "lint": "eslint --format=node_modules/eslint-codeframe-formatter ./src/**/*.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -37,9 +37,10 @@
   "devDependencies": {
     "@types/fs-extra": "8.0.0",
     "@types/tmp": "0.1.0",
+    "@typescript-eslint/eslint-plugin": "2.4.0",
+    "@typescript-eslint/parser": "2.4.0",
     "eslint": "6.5.1",
     "eslint-codeframe-formatter": "1.0.2",
-    "eslint-config-airbnb-base": "14.0.0",
     "eslint-plugin-import": "2.18.2"
   },
   "dependencies": {

@@ -3,10 +3,8 @@ import * as fs from 'fs-extra';
 
 export function validateFiles(oldFiles, newFiles) {
   if (oldFiles.length !== newFiles.length) {
-    throw (
-      'Error: edited file paths do not match the length of the original list.' +
-      `\nExpected ${oldFiles.length}, got ${newFiles.length}.`
-    );
+    throw 'Error: edited file paths do not match the length of the original list.' +
+      `\nExpected ${oldFiles.length}, got ${newFiles.length}.`;
   }
 
   const fileMap = {};
