@@ -10,8 +10,6 @@ import chalk from 'chalk';
 import { execSync } from 'child_process';
 import { getGitEditor } from './git-editor';
 import { validateFiles } from './validate-files';
-// TODO: remove when Promise.allSettled() available
-import allSettled from 'promise.allsettled';
 
 program
   .description('imv -- interactive move files')
@@ -74,6 +72,7 @@ async function run() {
       const oldFile = oldFiles[i];
       const newFile = newFiles[i];
 
+      // TODO: verify rename is a promise and get err working from catch
       const p = fs.rename(oldFile, newFile, err => {
         if (err) throw err;
       });
@@ -85,7 +84,11 @@ async function run() {
     exit(false);
   }
 
-  await allSettled(renamePromises);
+  await Promise.all(renamePromises).catch(err => {
+    console.dir(err);
+    console.error(err.message ? chalk.red(err.message) : err);
+    exit(false);
+  });
   console.log('✨ Done!');
 }
 

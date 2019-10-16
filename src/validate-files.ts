@@ -22,7 +22,7 @@ export function validateFiles(oldFiles, newFiles) {
     }
 
     if (fileMap[newFile]) {
-      throw `Error: file "${newFile}" declared twice on line ${fileMap[newFile].line} and ${i}.`;
+      throw `Error: file "${newFile}" declared twice on line ${fileMap[newFile].line + 1} and ${i + 1}.`;
     }
 
     fileMap[newFile] = { line: i };
