@@ -3,17 +3,22 @@ import * as ini from 'ini';
 import * as fs from 'fs-extra';
 
 export function getGitEditor(): string {
-  const localPath = gitConfigPath();
+  let editor: string;
 
+  const localPath = gitConfigPath();
   if (localPath) {
-    const config = ini.parse(fs.readFileSync(localPath, 'utf-8'));
-    return config && config.core && config.core.editor;
+    editor = readConfig(localPath);
   }
 
   const globalPath = gitConfigPath('global');
-
-  if (globalPath) {
-    const config = ini.parse(fs.readFileSync(globalPath, 'utf-8'));
-    return config && config.core && config.core.editor;
+  if (!editor && globalPath) {
+    editor = readConfig(globalPath);
   }
+
+  return editor;
+}
+
+function readConfig(path: string): string {
+  const config = ini.parse(fs.readFileSync(path, 'utf-8'));
+  return config && config.core && config.core.editor;
 }

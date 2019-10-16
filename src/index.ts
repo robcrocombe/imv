@@ -31,8 +31,9 @@ tmp.setGracefulCleanup();
 run();
 
 async function run() {
+  // https://github.com/sindresorhus/globby/issues/109
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const files = input.length > 1 ? input : await (globby as any)(input);
+  const oldFiles: string[] = input.length > 1 ? input : await (globby as any)(input);
   // console.log(files);
 
   const dir = tmp.dirSync({ unsafeCleanup: true });
@@ -54,7 +55,7 @@ async function run() {
 
   try {
     const tmpFile = path.join(dir.name, 'FILES');
-    fs.writeFileSync(tmpFile, files.join(EOL) + EOL, 'utf8');
+    fs.writeFileSync(tmpFile, oldFiles.join(EOL) + EOL, 'utf8');
 
     // Open files for renaming
     execSync(`${editor} ${tmpFile}`);
@@ -62,10 +63,15 @@ async function run() {
     const output = fs.readFileSync(tmpFile, 'utf8');
     const newFiles = output.trim().split(EOL);
 
-    validateFiles(files, newFiles);
+    if (oldFiles.join() === newFiles.join()) {
+      console.log(chalk.yellow('Files unchanged. Aborting.'));
+      exit(true);
+    }
+
+    validateFiles(oldFiles, newFiles);
 
     for (let i = 0; i < newFiles.length; ++i) {
-      const oldFile = files[i];
+      const oldFile = oldFiles[i];
       const newFile = newFiles[i];
 
       const p = fs.rename(oldFile, newFile, err => {
