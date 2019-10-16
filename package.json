@@ -1,11 +1,13 @@
 {
-  "name": "active-rename",
+  "name": "imv",
   "version": "1.0.0",
-  "description": "Interactive file renamer inspired by git",
+  "description": "Interactive file mover inspired by git",
   "main": "./dist/index.js",
-  "files": ["dist/**/*"],
+  "files": [
+    "dist/**/*"
+  ],
   "bin": {
-    "arm": "./dist/index.js"
+    "imv": "./dist/index.js"
   },
   "engines": {
     "node": ">=10.x"
@@ -19,14 +21,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/robcrocombe/active-rename.git"
+    "url": "git+https://github.com/robcrocombe/imv.git"
   },
   "author": "Rob Crocombe <me@robcrocombe.com> (http://robcrocombe.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/robcrocombe/active-rename/issues"
+    "url": "https://github.com/robcrocombe/imv/issues"
   },
-  "homepage": "https://github.com/robcrocombe/active-rename#readme",
+  "homepage": "https://github.com/robcrocombe/imv#readme",
   "prettier": {
     "printWidth": 100,
     "singleQuote": true,

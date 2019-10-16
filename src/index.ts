@@ -14,6 +14,7 @@ import { validateFiles } from './validate-files';
 import allSettled from 'promise.allsettled';
 
 program
+  .description('imv -- interactive move files')
   .version('1.0.0')
   .arguments('<glob>')
   .option('-e, --editor <editor>', 'use this editor to modify your file paths')

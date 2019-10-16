@@ -1,3 +1,3 @@
-# active-rename
+# imv (Interactive Move)
 
-An interactive file renamer/mover inspired by git
+An interactive file renamer/mover inspired by git.
