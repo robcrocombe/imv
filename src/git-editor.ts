@@ -1,14 +1,19 @@
-import * as gitconfig from 'gitconfig';
+import gitConfigPath from 'git-config-path';
+import * as ini from 'ini';
+import * as fs from 'fs-extra';
 
-export async function getGitEditor() {
-  const localPromise = gitconfig.get('core', {
-    location: 'local',
-  });
-  const globalPromise = gitconfig.get('core', {
-    location: 'global',
-  });
+export function getGitEditor(): string {
+  const localPath = gitConfigPath();
 
-  return Promise.all([localPromise, globalPromise]).then(([localConfig, globalConfig]) => {
-    return (localConfig && localConfig.editor) || (globalConfig && globalConfig.editor);
-  });
+  if (localPath) {
+    const config = ini.parse(fs.readFileSync(localPath, 'utf-8'));
+    return config && config.core && config.core.editor;
+  }
+
+  const globalPath = gitConfigPath('global');
+
+  if (globalPath) {
+    const config = ini.parse(fs.readFileSync(globalPath, 'utf-8'));
+    return config && config.core && config.core.editor;
+  }
 }

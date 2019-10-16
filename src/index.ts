@@ -39,7 +39,7 @@ async function run() {
 
   console.log(dir.name);
 
-  const editor = program.editor || (await getGitEditor());
+  const editor = program.editor || getGitEditor();
 
   if (!editor) {
     console.error(
