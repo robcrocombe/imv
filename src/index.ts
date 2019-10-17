@@ -34,6 +34,8 @@ async function run() {
   const oldFiles: string[] = input.length > 1 ? input : await (globby as any)(input);
   // console.log(files);
 
+  // TODO: check files found
+
   const dir = tmp.dirSync({ unsafeCleanup: true });
 
   console.log(dir.name);
@@ -72,10 +74,7 @@ async function run() {
       const oldFile = oldFiles[i];
       const newFile = newFiles[i];
 
-      // TODO: verify rename is a promise and get err working from catch
-      const p = fs.rename(oldFile, newFile, err => {
-        if (err) throw err;
-      });
+      const p = fs.move(oldFile, newFile, { overwrite: true });
 
       renamePromises.push(p);
     }
