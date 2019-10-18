@@ -1,7 +1,6 @@
 import * as fs from 'fs-extra';
-// import * as path from 'path';
 
-export function validateFiles(oldFiles, newFiles) {
+export function validateFiles(oldFiles: string[], newFiles: string[], overwrite: boolean) {
   if (oldFiles.length !== newFiles.length) {
     throw 'Error: edited file paths do not match the length of the original list.' +
       `\nExpected ${oldFiles.length}, got ${newFiles.length}.`;
@@ -17,16 +16,16 @@ export function validateFiles(oldFiles, newFiles) {
       throw `Error: cannot read/write "${oldFile}".`;
     }
 
-    if (fs.existsSync(newFile)) {
+    if (!overwrite && fs.existsSync(newFile)) {
       throw `Error: file "${newFile}" already exists.`;
     }
 
     if (fileMap[newFile]) {
-      throw `Error: file "${newFile}" declared twice on line ${fileMap[newFile].line + 1} and ${i + 1}.`;
+      const lineA = fileMap[newFile].line + 1;
+      const lineB = i + 1;
+      throw `Error: file "${newFile}" declared twice on line ${lineA} and ${lineB}.`;
     }
 
     fileMap[newFile] = { line: i };
   }
-
-  return fileMap;
 }

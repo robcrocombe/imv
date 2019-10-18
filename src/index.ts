@@ -6,16 +6,18 @@ import * as tmp from 'tmp';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { EOL } from 'os';
-import chalk from 'chalk';
 import { execSync } from 'child_process';
 import { getGitEditor } from './git-editor';
 import { validateFiles } from './validate-files';
+import { log } from './log';
 
 program
   .description('imv -- interactive move files')
-  .version('1.0.0')
+  .version('1.0.0', '-v, --version', 'output the version number')
   .arguments('<glob>')
   .option('-e, --editor <editor>', 'use this editor to modify your file paths')
+  .option('-o, --overwrite', 'overwrite existing files')
+  .option('-c, --cleanup', 'remove empty folders after moving files')
   .parse(process.argv);
 
 const input = program.args;
@@ -32,21 +34,20 @@ async function run() {
   // https://github.com/sindresorhus/globby/issues/109
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const oldFiles: string[] = input.length > 1 ? input : await (globby as any)(input);
-  // console.log(files);
 
-  // TODO: check files found
+  if (!oldFiles || !oldFiles.length) {
+    log.warn(`No files found matching "${input.join(', ')}". Aborting.`);
+    exit(true);
+  }
 
   const dir = tmp.dirSync({ unsafeCleanup: true });
 
-  console.log(dir.name);
-
   const editor = program.editor || getGitEditor();
+  const overwrite = !!program.overwrite;
 
   if (!editor) {
-    console.error(
-      chalk.red(
-        'Your git `config.editor` variable is not set or you are missing `--editor` argument.'
-      )
+    log.error(
+      'Your git `config.editor` variable is not set or you are missing `--editor` argument.'
     );
     exit(false);
   }
@@ -64,31 +65,35 @@ async function run() {
     const newFiles = output.trim().split(EOL);
 
     if (oldFiles.join() === newFiles.join()) {
-      console.log(chalk.yellow('Files unchanged. Aborting.'));
+      log.warn('Files unchanged. Aborting.');
       exit(true);
     }
 
-    validateFiles(oldFiles, newFiles);
+    validateFiles(oldFiles, newFiles, overwrite);
 
     for (let i = 0; i < newFiles.length; ++i) {
       const oldFile = oldFiles[i];
       const newFile = newFiles[i];
 
-      const p = fs.move(oldFile, newFile, { overwrite: true });
+      const p = fs.move(oldFile, newFile, { overwrite });
 
       renamePromises.push(p);
     }
   } catch (err) {
-    console.error(chalk.red(err));
+    log.warn(err);
     exit(false);
   }
 
   await Promise.all(renamePromises).catch(err => {
-    console.dir(err);
-    console.error(err.message ? chalk.red(err.message) : err);
+    if (err && err.message) {
+      log.error(err.message);
+    } else {
+      log(err);
+    }
     exit(false);
   });
-  console.log('✨ Done!');
+
+  log('✨ Done!');
 }
 
 function exit(success) {
