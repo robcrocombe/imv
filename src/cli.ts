@@ -25,11 +25,21 @@ run(program.args, { editor, overwrite, cleanup })
     exit(result);
   })
   .catch(err => {
-    if (err && err.message) {
-      log.error(err.message);
+    if (err) {
+      if (err.success != null) {
+        // Logging handled by main program
+        return exit(err.success);
+      }
+      if (err.stack) {
+        log.error(err.stack);
+      } else {
+        log.error(err);
+      }
     } else {
-      log(err);
+      log.error('An unknown error occurred.');
     }
+
+    exit(false);
   });
 
 function exit(success: boolean) {
