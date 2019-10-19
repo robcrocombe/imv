@@ -2,12 +2,12 @@
   "name": "imv",
   "version": "1.0.0",
   "description": "Interactive file mover inspired by git",
-  "main": "./dist/index.js",
+  "main": "./src/index.js",
   "files": [
     "dist/**/*"
   ],
   "bin": {
-    "imv": "./dist/index.js"
+    "imv": "./dist/cli.js"
   },
   "engines": {
     "node": ">=10.x"
@@ -17,7 +17,7 @@
     "dist": "tsc",
     "prepublishOnly": "npm run lint && npm run dist",
     "lint": "eslint --format=node_modules/eslint-codeframe-formatter ./src/**/*.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -34,14 +34,24 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
+  "jest": {
+    "preset": "ts-jest",
+    "globalSetup": "./tests/setup.ts",
+    "cacheDirectory": "./node_modules/.cache/jest"
+  },
   "devDependencies": {
     "@types/fs-extra": "8.0.0",
+    "@types/jest": "24.0.19",
+    "@types/mock-fs": "3.6.30",
     "@types/tmp": "0.1.0",
     "@typescript-eslint/eslint-plugin": "2.4.0",
     "@typescript-eslint/parser": "2.4.0",
     "eslint": "6.5.1",
     "eslint-codeframe-formatter": "1.0.2",
-    "eslint-plugin-import": "2.18.2"
+    "eslint-plugin-import": "2.18.2",
+    "jest": "24.9.0",
+    "mock-fs": "4.10.2",
+    "ts-jest": "24.1.0"
   },
   "dependencies": {
     "@types/git-config-path": "2.0.0",
@@ -56,5 +66,16 @@
     "readline-sync": "1.4.10",
     "tmp": "0.1.0",
     "typescript": "3.6.4"
-  }
+  },
+  "keywords": [
+    "fs",
+    "file",
+    "file system",
+    "directory",
+    "recursive",
+    "mv",
+    "git",
+    "interactive",
+    "move"
+  ]
 }

@@ -1,6 +1,3 @@
-#!/usr/bin/env node
-
-import program from 'commander';
 import globby from 'globby';
 import * as tmp from 'tmp';
 import * as fs from 'fs-extra';
@@ -11,45 +8,26 @@ import { getGitEditor } from './git-editor';
 import { validateFiles } from './validate-files';
 import { log } from './log';
 
-program
-  .description('imv -- interactive move files')
-  .version('1.0.0', '-v, --version', 'output the version number')
-  .arguments('<glob>')
-  .option('-e, --editor <editor>', 'use this editor to modify your file paths')
-  .option('-o, --overwrite', 'overwrite existing files')
-  .option('-c, --cleanup', 'remove empty folders after moving files')
-  .parse(process.argv);
+export async function run(input, opts): Promise<boolean> {
+  tmp.setGracefulCleanup();
 
-const input = program.args;
-
-if (!input.length) {
-  program.outputHelp();
-  exit(false);
-}
-
-tmp.setGracefulCleanup();
-run();
-
-async function run() {
-  // https://github.com/sindresorhus/globby/issues/109
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const oldFiles: string[] = input.length > 1 ? input : await (globby as any)(input);
+  const oldFiles: string[] = input.length > 1 ? input : globby.sync(input);
 
   if (!oldFiles || !oldFiles.length) {
     log.warn(`No files found matching "${input.join(', ')}". Aborting.`);
-    exit(true);
+    return true;
   }
 
   const dir = tmp.dirSync({ unsafeCleanup: true });
 
-  const editor = program.editor || getGitEditor();
-  const overwrite = !!program.overwrite;
+  const editor = opts.editor || getGitEditor();
+  const overwrite = !!opts.overwrite;
 
   if (!editor) {
     log.error(
       'Your git `config.editor` variable is not set or you are missing `--editor` argument.'
     );
-    exit(false);
+    return false;
   }
 
   const renamePromises = [];
@@ -66,7 +44,7 @@ async function run() {
 
     if (oldFiles.join() === newFiles.join()) {
       log.warn('Files unchanged. Aborting.');
-      exit(true);
+      return true;
     }
 
     validateFiles(oldFiles, newFiles, overwrite);
@@ -81,21 +59,11 @@ async function run() {
     }
   } catch (err) {
     log.warn(err);
-    exit(false);
+    return false;
   }
 
-  await Promise.all(renamePromises).catch(err => {
-    if (err && err.message) {
-      log.error(err.message);
-    } else {
-      log(err);
-    }
-    exit(false);
+  return Promise.all(renamePromises).then(() => {
+    log('✨ Done!');
+    return true;
   });
-
-  log('✨ Done!');
-}
-
-function exit(success) {
-  process.exit(success ? 0 : 1);
 }
