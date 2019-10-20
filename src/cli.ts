@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import program from 'commander';
-import { run } from './index';
+import { imv } from './index';
 import { log } from './log';
 
 program
@@ -20,8 +20,11 @@ if (!program.args.length) {
 
 const { editor, overwrite, cleanup } = program;
 
-run(program.args, { editor, overwrite, cleanup })
+imv(program.args, { editor, overwrite, cleanup })
   .then(result => {
+    if (result === true) {
+      log('✨ Done!');
+    }
     exit(result);
   })
   .catch(err => {

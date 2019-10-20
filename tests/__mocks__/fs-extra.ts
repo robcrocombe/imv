@@ -7,10 +7,6 @@ export function __mockFs(system: Record<string, string>) {
   fileSystem = system;
 }
 
-export function __resetFs() {
-  fileSystem = undefined;
-}
-
 export function __getFile(path: string): string {
   return fileSystem[path];
 }

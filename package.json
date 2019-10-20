@@ -37,7 +37,6 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "globalSetup": "./tests/setup.ts",
     "cacheDirectory": "./node_modules/.cache/jest"
   },
   "devDependencies": {
@@ -52,6 +51,7 @@
     "eslint-plugin-import": "2.18.2",
     "eslint-plugin-jest": "22.19.0",
     "jest": "24.9.0",
+    "minimatch": "3.0.4",
     "mock-fs": "4.10.2",
     "ts-jest": "24.1.0"
   },

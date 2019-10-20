@@ -14,7 +14,7 @@ interface Options {
   cleanup?: boolean;
 }
 
-export async function run(input: string[], args: Options): Promise<boolean> {
+export async function imv(input: string[], args: Options): Promise<boolean> {
   tmp.setGracefulCleanup();
 
   const oldFiles: string[] = input.length > 1 ? input : globby.sync(input);
@@ -47,7 +47,6 @@ export async function run(input: string[], args: Options): Promise<boolean> {
       return moveFiles(oldFiles, newFiles, opts.overwrite);
     })
     .then(() => {
-      log('✨ Done!');
       return true;
     });
 }
