@@ -1,5 +1,10 @@
 import * as fs from 'fs-extra';
 import { log } from './log';
+import chalk from 'chalk';
+
+interface FileStat {
+  line: number;
+}
 
 export async function validateFiles(
   oldFiles: string[],
@@ -7,31 +12,37 @@ export async function validateFiles(
   overwrite: boolean
 ): Promise<string[]> {
   if (oldFiles.length !== newFiles.length) {
-    log.error('Error: edited file paths do not match the length of the original list.' +
-      `\nExpected ${oldFiles.length}, got ${newFiles.length}.`);
+    const oldLength = chalk.white(oldFiles.length.toString());
+    const newLength = chalk.white(newFiles.length.toString());
+    log.error(
+      'Error: edited file paths do not match the length of the original list.' +
+        `\nExpected ${oldLength}, got ${newLength}.`
+    );
     return Promise.reject({ success: false });
   }
 
-  const fileMap = {};
+  const fileMap: Record<string, FileStat> = {};
 
   for (let i = 0; i < newFiles.length; ++i) {
     const oldFile = oldFiles[i];
     const newFile = newFiles[i];
 
     if (!fs.existsSync(oldFile)) {
-      log.error(`Error: cannot read/write "${oldFile}".`);
+      log.error(`Error: cannot read/write ${chalk.white(oldFile)}.`);
       return Promise.reject({ success: false });
     }
 
-    if (!overwrite && fs.existsSync(newFile)) {
-      log.error(`Error: file "${newFile}" already exists.`);
+    if (oldFile !== newFile && !overwrite && fs.existsSync(newFile)) {
+      log.error(`Error: file ${chalk.white(newFile)} already exists.`);
       return Promise.reject({ success: false });
     }
 
     if (fileMap[newFile]) {
-      const lineA = fileMap[newFile].line + 1;
-      const lineB = i + 1;
-      log.error(`Error: file "${newFile}" declared twice on line ${lineA} and ${lineB}.`);
+      const lineA = chalk.white((fileMap[newFile].line + 1).toString());
+      const lineB = chalk.white((i + 1).toString());
+      log.error(
+        `Error: file ${chalk.white(newFile)} declared twice on line ${lineA} and ${lineB}.`
+      );
       return Promise.reject({ success: false });
     }
 

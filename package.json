@@ -17,7 +17,7 @@
     "dist": "tsc",
     "prepublishOnly": "npm run lint && npm run dist",
     "lint": "eslint --format=node_modules/eslint-codeframe-formatter ./{src,tests}/**/*.ts",
-    "test": "jest"
+    "test": "jest --watch"
   },
   "repository": {
     "type": "git",

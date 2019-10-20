@@ -8,6 +8,12 @@ import { getGitEditor } from './git-editor';
 import { validateFiles } from './validate-files';
 import { log } from './log';
 
+interface Options {
+  editor?: string;
+  overwrite?: boolean;
+  cleanup?: boolean;
+}
+
 export async function run(input: string[], args: Options): Promise<boolean> {
   tmp.setGracefulCleanup();
 
@@ -69,16 +75,17 @@ async function promptForNewFiles(
 }
 
 function moveFiles(oldFiles: string[], newFiles: string[], overwrite: boolean): Promise<void[]> {
-  const renamePromises: Promise<void>[] = [];
+  const movePromises: Promise<void>[] = [];
 
   for (let i = 0; i < newFiles.length; ++i) {
     const oldFile = oldFiles[i];
     const newFile = newFiles[i];
 
-    const p = fs.move(oldFile, newFile, { overwrite });
-
-    renamePromises.push(p);
+    if (oldFile !== newFile) {
+      const p = fs.move(oldFile, newFile, { overwrite });
+      movePromises.push(p);
+    }
   }
 
-  return Promise.all(renamePromises);
+  return Promise.all(movePromises);
 }

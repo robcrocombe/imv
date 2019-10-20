@@ -1,18 +1,31 @@
 import 'jest';
-import mock from 'mock-fs';
+import * as fs from 'fs-extra';
+import * as cp from 'child_process';
+import { run } from '../src/index';
+import * as mockFs from './__mocks__/fs-extra';
+import * as mockCp from './__mocks__/child_process';
+
+jest.mock('child_process');
+
+const mockedFs = (fs as unknown) as typeof mockFs;
+const mockedCp = (cp as unknown) as typeof mockCp;
 
 beforeAll(() => {
-  mock({
-    'files': {
-      'fidgit.txt': 'text1',
-    },
+  mockedFs.__mockFs({
+    './files/fidget.txt': 'abc',
   });
+  mockedCp.__setEditor('subl');
 });
 
 afterAll(() => {
-  mock.restore();
+  mockedFs.__resetFs();
 });
 
-test('adds 1 + 2 to equal 3', () => {
-  expect(1 + 2).toBe(3);
+test('works', async () => {
+  mockedCp.__setEdits('./files/spinner.txt\n')
+
+  await run(['./files/fidget.txt'], { editor: 'subl' });
+
+  expect(mockedFs.__getFile('./files/spinner.txt')).toBe('abc');
+  expect(mockedFs.__getFile('./files/fidget.txt')).toBeNull();
 });
