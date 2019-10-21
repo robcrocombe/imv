@@ -22,9 +22,6 @@ const { editor, overwrite, cleanup } = program;
 
 imv(program.args, { editor, overwrite, cleanup })
   .then(result => {
-    if (result === true) {
-      log('✨ Done!');
-    }
     exit(result);
   })
   .catch(err => {

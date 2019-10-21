@@ -47,6 +47,7 @@ export async function imv(input: string[], args: Options): Promise<boolean> {
       return moveFiles(oldFiles, newFiles, opts.overwrite);
     })
     .then(() => {
+      log('✨ Done!');
       return true;
     });
 }

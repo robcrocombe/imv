@@ -1,15 +1,19 @@
 import 'jest';
+import { mocked } from 'ts-jest/utils';
 import * as fs from 'fs-extra';
 import * as cp from 'child_process';
 import { EOL } from 'os';
 import { imv } from '../src/index';
+import { log } from '../src/log';
 import * as mockFs from './__mocks__/fs-extra';
 import * as mockCp from './__mocks__/child_process';
 
 jest.mock('child_process');
+jest.mock('../src/log');
 
 const mockedFs = (fs as unknown) as typeof mockFs;
 const mockedCp = (cp as unknown) as typeof mockCp;
+const mockedLog = mocked(log);
 const editor = 'subl';
 
 beforeAll(() => {
@@ -26,6 +30,7 @@ beforeEach(() => {
     './foo/skate.js': 'king',
     './foo/dollar.js': 'oven',
   });
+  mockedLog.mockClear();
 });
 
 it('renames a single file', async () => {
@@ -35,6 +40,8 @@ it('renames a single file', async () => {
 
   expect(mockedFs.__getFile('./foo/fidget.txt')).toBeNull();
   expect(mockedFs.__getFile('./foo/fidget2.txt')).toBe('weapon');
+
+  expect(log).toBeCalledTimes(1);
 });
 
 it('renames using a glob pattern', async () => {
@@ -50,6 +57,8 @@ it('renames using a glob pattern', async () => {
 
   expect(mockedFs.__getFile('./foo/myth.png')).toBeNull();
   expect(mockedFs.__getFile('./foo/myth.jpg')).toBe('tram');
+
+  expect(log).toBeCalledTimes(1);
 });
 
 function setEdits(arr: string[]) {
