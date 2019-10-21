@@ -61,6 +61,21 @@ it('renames using a glob pattern', async () => {
   expect(log).toHaveBeenCalledTimes(1);
 });
 
+it.only('swaps file names with overwrite enabled', async () => {
+  setEdits(['./foo/dollar.js', './foo/skate.js']);
+
+  await expect(
+    imv(['./foo/skate.js', './foo/dollar.js'], { editor, overwrite: true })
+  ).resolves.toBe(true);
+
+  console.log(mockFs.fileSystem);
+
+  expect(mockedFs.__getFile('./foo/skate.js')).toBe('oven');
+  expect(mockedFs.__getFile('./foo/dollar.js')).toBe('king');
+
+  expect(log).toHaveBeenCalledTimes(1);
+});
+
 function setEdits(arr: string[]) {
   mockedCp.__setEdits(arr.join(EOL) + EOL);
 }

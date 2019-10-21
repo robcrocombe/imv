@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
-import { log } from './log';
 import chalk from 'chalk';
+import { Options } from './index';
+import { log } from './log';
 
 interface FileStat {
   line: number;
@@ -9,7 +10,7 @@ interface FileStat {
 export async function validateFiles(
   oldFiles: string[],
   newFiles: string[],
-  overwrite: boolean
+  opts: Options
 ): Promise<string[]> {
   if (oldFiles.length !== newFiles.length) {
     const oldLength = chalk.white(oldFiles.length.toString());
@@ -22,6 +23,7 @@ export async function validateFiles(
   }
 
   const fileMap: Record<string, FileStat> = {};
+  const okToOverwrite = opts.overwrite || opts.trash;
 
   for (let i = 0; i < newFiles.length; ++i) {
     const oldFile = oldFiles[i];
@@ -32,7 +34,7 @@ export async function validateFiles(
       return Promise.reject({ success: false });
     }
 
-    if (oldFile !== newFile && !overwrite && fs.existsSync(newFile)) {
+    if (oldFile !== newFile && !okToOverwrite && fs.existsSync(newFile)) {
       log.error(`Error: file ${chalk.white(newFile)} already exists.`);
       return Promise.reject({ success: false });
     }

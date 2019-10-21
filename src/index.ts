@@ -8,14 +8,34 @@ import { getGitEditor } from './git-editor';
 import { validateFiles } from './validate-files';
 import { log } from './log';
 
-interface Options {
+export interface Options {
   editor?: string;
   overwrite?: boolean;
+  trash?: boolean;
   cleanup?: boolean;
 }
 
 export async function imv(input: string[], args: Options): Promise<boolean> {
   tmp.setGracefulCleanup();
+
+  const opts: Options = {
+    editor: args.editor || getGitEditor(),
+    overwrite: !!args.overwrite,
+    trash: !!args.trash,
+    cleanup: !!args.cleanup,
+  };
+
+  if (typeof opts.editor !== 'string' || !opts.editor.trim()) {
+    log.error(
+      'Your git `config.editor` variable is not set or you are missing the `editor` argument.'
+    );
+    return Promise.reject({ success: false });
+  }
+
+  if (opts.trash && opts.overwrite) {
+    log.error('Please use either `overwrite` or `trash` options, but not both at the same time.');
+    return Promise.reject({ success: false });
+  }
 
   const oldFiles: string[] = input.length > 1 ? input : globby.sync(input);
 
@@ -26,25 +46,12 @@ export async function imv(input: string[], args: Options): Promise<boolean> {
 
   const dir = tmp.dirSync({ unsafeCleanup: true });
 
-  const opts: Options = {
-    editor: args.editor || getGitEditor(),
-    overwrite: !!args.overwrite,
-    cleanup: !!args.cleanup,
-  };
-
-  if (!opts.editor) {
-    log.error(
-      'Your git `config.editor` variable is not set or you are missing `--editor` argument.'
-    );
-    return Promise.reject({ success: false });
-  }
-
   return promptForNewFiles(oldFiles, dir, opts)
     .then(newFiles => {
-      return validateFiles(oldFiles, newFiles, opts.overwrite);
+      return validateFiles(oldFiles, newFiles, opts);
     })
     .then(newFiles => {
-      return moveFiles(oldFiles, newFiles, opts.overwrite);
+      return moveFiles(oldFiles, newFiles, opts);
     })
     .then(() => {
       log('✨ Done!');
@@ -74,8 +81,9 @@ async function promptForNewFiles(
   return newFiles;
 }
 
-function moveFiles(oldFiles: string[], newFiles: string[], overwrite: boolean): Promise<void[]> {
+function moveFiles(oldFiles: string[], newFiles: string[], opts: Options): Promise<void[]> {
   const movePromises: Promise<void>[] = [];
+  const overwrite = opts.overwrite;
 
   for (let i = 0; i < newFiles.length; ++i) {
     const oldFile = oldFiles[i];
