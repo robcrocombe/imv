@@ -41,7 +41,7 @@ it('renames a single file', async () => {
   expect(mockedFs.__getFile('./foo/fidget.txt')).toBeNull();
   expect(mockedFs.__getFile('./foo/fidget2.txt')).toBe('weapon');
 
-  expect(log).toBeCalledTimes(1);
+  expect(log).toHaveBeenCalledTimes(1);
 });
 
 it('renames using a glob pattern', async () => {
@@ -58,7 +58,7 @@ it('renames using a glob pattern', async () => {
   expect(mockedFs.__getFile('./foo/myth.png')).toBeNull();
   expect(mockedFs.__getFile('./foo/myth.jpg')).toBe('tram');
 
-  expect(log).toBeCalledTimes(1);
+  expect(log).toHaveBeenCalledTimes(1);
 });
 
 function setEdits(arr: string[]) {

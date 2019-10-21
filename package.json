@@ -16,7 +16,7 @@
     "start": "tsc -w",
     "dist": "tsc",
     "prepublishOnly": "npm run lint && npm run dist",
-    "lint": "eslint --format=node_modules/eslint-codeframe-formatter ./{src,tests}/**/*.ts",
+    "lint": "eslint --format=node_modules/eslint-codeframe-formatter './{src,tests}/**/*.ts'",
     "test": "jest --watch",
     "test-ci": "jest"
   },
