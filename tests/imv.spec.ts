@@ -62,7 +62,7 @@ it('renames using a glob pattern', async () => {
   expect(log).toHaveBeenCalledTimes(1);
 });
 
-it('cannot overwrite pending files with overwrite=false', async () => {
+it('cannot overwrite matching files with overwrite=false', async () => {
   setEdits(['./foo/brand_new.js', './foo/skate.js', './foo/guitar.js']);
 
   await expect(
@@ -73,7 +73,7 @@ it('cannot overwrite pending files with overwrite=false', async () => {
   expect(log.error).toHaveBeenCalledWith('Error: file ./foo/guitar.js already exists.');
 });
 
-it('cannot overwrite pending files with overwrite=true', async () => {
+it('cannot overwrite matching files with overwrite=true', async () => {
   setEdits(['./foo/brand_new.js', './foo/skate.js', './foo/guitar.js']);
 
   await expect(
@@ -85,6 +85,18 @@ it('cannot overwrite pending files with overwrite=true', async () => {
     'Error: cannot rename ./foo/dollar.js to ./foo/guitar.js because the new file is also pending movement.'
   );
 });
+
+it.todo('cannot overwrite non-matching files with overwrite=false');
+
+it.todo('overwrites non-matching files with overwrite=true');
+
+it.todo('sends non-matching files to the recycle bin with trash=true');
+
+it.todo('cannot execute with both overwrite=true and trash=true');
+
+it.todo('cannot execute without input');
+
+it.todo('cannot execute without a matching glob pattern');
 
 function setEdits(arr: string[]) {
   mockedCp.__setEdits(arr.join(EOL) + EOL);

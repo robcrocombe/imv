@@ -25,7 +25,7 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     return Promise.reject({ success: false });
   }
 
-  if (opts.trash && opts.overwrite) {
+  if (opts.overwrite && opts.trash) {
     log.error('Please use either `overwrite` or `trash` options, but not both at the same time.');
     return Promise.reject({ success: false });
   }
