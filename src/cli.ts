@@ -23,7 +23,7 @@ const { editor, overwrite, trash, cleanup } = program;
 
 imv(program.args, { editor, overwrite, trash, cleanup })
   .then(result => {
-    exit(result);
+    exit(result && result.success);
   })
   .catch(err => {
     if (err) {

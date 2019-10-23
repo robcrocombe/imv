@@ -18,7 +18,7 @@ export async function validateFiles(
   }
 
   const fileSeen: Record<string, FileStat> = {};
-  // const filePlans: FilePlan[] = [];
+  const oldFilesSeen:  Record<string, true> = {};
   const okToOverwrite = opts.overwrite || opts.trash;
 
   for (let i = 0; i < newFiles.length; ++i) {
@@ -44,6 +44,16 @@ export async function validateFiles(
       return Promise.reject({ success: false });
     }
 
+    if (oldFilesSeen[newFile]) {
+      const oldFmtd = chalk.white(oldFile);
+      const newFmtd = chalk.white(newFile);
+      log.error(
+        `Error: cannot rename ${oldFmtd} to ${newFmtd} because the new file is also pending movement.`
+      );
+      return Promise.reject({ success: false });
+    }
+
+    oldFilesSeen[oldFile] = true;
     fileSeen[newFile] = { line: i };
   }
 

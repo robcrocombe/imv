@@ -1,19 +1,20 @@
 import 'jest';
-import { mocked } from 'ts-jest/utils';
 import * as fs from 'fs-extra';
 import * as cp from 'child_process';
+import chalk from 'chalk';
 import { EOL } from 'os';
 import { imv } from '../src/index';
 import { log } from '../src/log';
 import * as mockFs from './__mocks__/fs-extra';
 import * as mockCp from './__mocks__/child_process';
 
+chalk.enabled = false;
+
 jest.mock('child_process');
 jest.mock('../src/log');
 
 const mockedFs = (fs as unknown) as typeof mockFs;
 const mockedCp = (cp as unknown) as typeof mockCp;
-const mockedLog = mocked(log);
 const editor = 'subl';
 
 beforeAll(() => {
@@ -30,13 +31,13 @@ beforeEach(() => {
     './foo/skate.js': 'king',
     './foo/dollar.js': 'oven',
   });
-  mockedLog.mockClear();
+  jest.clearAllMocks();
 });
 
 it('renames a single file', async () => {
   setEdits(['./foo/fidget2.txt']);
 
-  await expect(imv(['./foo/fidget.txt'], { editor })).resolves.toBe(true);
+  await expect(imv(['./foo/fidget.txt'], { editor })).resolves.toStrictEqual({ success: true });
 
   expect(mockedFs.__getFile('./foo/fidget.txt')).toBeNull();
   expect(mockedFs.__getFile('./foo/fidget2.txt')).toBe('weapon');
@@ -47,7 +48,7 @@ it('renames a single file', async () => {
 it('renames using a glob pattern', async () => {
   setEdits(['./flag2.png', './bar2/opera.png', './foo/myth.jpg']);
 
-  await expect(imv(['./**/*.png'], { editor })).resolves.toBe(true);
+  await expect(imv(['./**/*.png'], { editor })).resolves.toStrictEqual({ success: true });
 
   expect(mockedFs.__getFile('./flag.png')).toBeNull();
   expect(mockedFs.__getFile('./flag2.png')).toBe('island');
@@ -61,19 +62,28 @@ it('renames using a glob pattern', async () => {
   expect(log).toHaveBeenCalledTimes(1);
 });
 
-it.only('swaps file names with overwrite enabled', async () => {
-  setEdits(['./foo/dollar.js', './foo/skate.js']);
+it('cannot overwrite pending files with overwrite=false', async () => {
+  setEdits(['./foo/brand_new.js', './foo/skate.js', './foo/guitar.js']);
 
   await expect(
-    imv(['./foo/skate.js', './foo/dollar.js'], { editor, overwrite: true })
-  ).resolves.toBe(true);
+    imv(['./foo/guitar.js', './foo/skate.js', './foo/dollar.js'], { editor, overwrite: false })
+  ).rejects.toStrictEqual({ success: false });
 
-  console.log(mockFs.fileSystem);
+  expect(log.error).toHaveBeenCalledTimes(1);
+  expect(log.error).toHaveBeenCalledWith('Error: file ./foo/guitar.js already exists.');
+});
 
-  expect(mockedFs.__getFile('./foo/skate.js')).toBe('oven');
-  expect(mockedFs.__getFile('./foo/dollar.js')).toBe('king');
+it('cannot overwrite pending files with overwrite=true', async () => {
+  setEdits(['./foo/brand_new.js', './foo/skate.js', './foo/guitar.js']);
 
-  expect(log).toHaveBeenCalledTimes(1);
+  await expect(
+    imv(['./foo/guitar.js', './foo/skate.js', './foo/dollar.js'], { editor, overwrite: true })
+  ).rejects.toStrictEqual({ success: false });
+
+  expect(log.error).toHaveBeenCalledTimes(1);
+  expect(log.error).toHaveBeenCalledWith(
+    'Error: cannot rename ./foo/dollar.js to ./foo/guitar.js because the new file is also pending movement.'
+  );
 });
 
 function setEdits(arr: string[]) {

@@ -5,12 +5,10 @@ interface Options {
   cleanup?: boolean;
 }
 
-interface FileStat {
-  line: number;
+interface RunResult {
+  success: boolean;
 }
 
-interface FilePlan {
-  oldPath: string;
-  newPath: string;
-  swap?: string;
+interface FileStat {
+  line: number;
 }
