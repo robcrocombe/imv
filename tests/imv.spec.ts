@@ -1,4 +1,4 @@
-import '../src/types';
+/// <reference path="../src/types.d.ts" />
 
 import 'jest';
 import * as fs from 'fs-extra';
