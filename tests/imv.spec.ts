@@ -34,7 +34,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('renames a single file', async () => {
+it('moves a single file', async () => {
   setEdits(['./foo/fidget2.txt']);
 
   await expect(imv(['./foo/fidget.txt'], { editor })).resolves.toStrictEqual({ success: true });
@@ -45,7 +45,7 @@ it('renames a single file', async () => {
   expect(log).toHaveBeenCalledTimes(1);
 });
 
-it('renames using a glob pattern', async () => {
+it('moves using a glob pattern', async () => {
   setEdits(['./flag2.png', './bar2/opera.png', './foo/myth.jpg']);
 
   await expect(imv(['./**/*.png'], { editor })).resolves.toStrictEqual({ success: true });
