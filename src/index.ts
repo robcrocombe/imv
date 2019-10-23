@@ -34,7 +34,7 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
 
   if (!oldFiles || !oldFiles.length) {
     log.warn(`No files found matching "${input.join(', ')}". Aborting.`);
-    return Promise.reject({ success: true });
+    return { success: true };
   }
 
   const dir = tmp.dirSync({ unsafeCleanup: true });

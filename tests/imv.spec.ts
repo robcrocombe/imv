@@ -1,3 +1,5 @@
+/// <reference path="../src/types.d.ts" />
+
 import 'jest';
 import * as fs from 'fs-extra';
 import * as cp from 'child_process';
@@ -37,7 +39,7 @@ beforeEach(() => {
 it('moves a single file', async () => {
   setEdits(['./foo/fidget2.txt']);
 
-  await expect(imv(['./foo/fidget.txt'], { editor })).resolves.toStrictEqual({ success: true });
+  await run(['./foo/fidget.txt'], { editor }, true);
 
   expect(mockedFs.__getFile('./foo/fidget.txt')).toBeNull();
   expect(mockedFs.__getFile('./foo/fidget2.txt')).toBe('weapon');
@@ -48,7 +50,7 @@ it('moves a single file', async () => {
 it('moves using a glob pattern', async () => {
   setEdits(['./flag2.png', './bar2/opera.png', './foo/myth.jpg']);
 
-  await expect(imv(['./**/*.png'], { editor })).resolves.toStrictEqual({ success: true });
+  await run(['./**/*.png'], { editor }, true);
 
   expect(mockedFs.__getFile('./flag.png')).toBeNull();
   expect(mockedFs.__getFile('./flag2.png')).toBe('island');
@@ -65,9 +67,11 @@ it('moves using a glob pattern', async () => {
 it('cannot overwrite matching files with overwrite=false', async () => {
   setEdits(['./foo/brand_new.js', './foo/skate.js', './foo/guitar.js']);
 
-  await expect(
-    imv(['./foo/guitar.js', './foo/skate.js', './foo/dollar.js'], { editor, overwrite: false })
-  ).rejects.toStrictEqual({ success: false });
+  await run(
+    ['./foo/guitar.js', './foo/skate.js', './foo/dollar.js'],
+    { editor, overwrite: false },
+    false
+  );
 
   expect(log.error).toHaveBeenCalledTimes(1);
   expect(log.error).toHaveBeenCalledWith('Error: file ./foo/guitar.js already exists.');
@@ -76,9 +80,11 @@ it('cannot overwrite matching files with overwrite=false', async () => {
 it('cannot overwrite matching files with overwrite=true', async () => {
   setEdits(['./foo/brand_new.js', './foo/skate.js', './foo/guitar.js']);
 
-  await expect(
-    imv(['./foo/guitar.js', './foo/skate.js', './foo/dollar.js'], { editor, overwrite: true })
-  ).rejects.toStrictEqual({ success: false });
+  await run(
+    ['./foo/guitar.js', './foo/skate.js', './foo/dollar.js'],
+    { editor, overwrite: true },
+    false
+  );
 
   expect(log.error).toHaveBeenCalledTimes(1);
   expect(log.error).toHaveBeenCalledWith(
@@ -86,18 +92,53 @@ it('cannot overwrite matching files with overwrite=true', async () => {
   );
 });
 
-it.todo('cannot overwrite non-matching files with overwrite=false');
+it('cannot overwrite non-matching files with overwrite=false', async () => {
+  setEdits(['./foo/guitar.js']);
 
-it.todo('overwrites non-matching files with overwrite=true');
+  await run(['./foo/fidget.txt'], { editor, overwrite: false }, false);
 
+  expect(log.error).toHaveBeenCalledTimes(1);
+  expect(log.error).toHaveBeenCalledWith('Error: file ./foo/guitar.js already exists.');
+});
+
+it('overwrites non-matching files with overwrite=true', async () => {
+  setEdits(['./foo/guitar.js']);
+
+  await run(['./foo/fidget.txt'], { editor, overwrite: true }, true);
+
+  expect(log).toHaveBeenCalledTimes(1);
+});
+
+// , async () => {}
 it.todo('sends non-matching files to the recycle bin with trash=true');
 
-it.todo('cannot execute with both overwrite=true and trash=true');
+it('cannot execute with both overwrite=true and trash=true', async () => {
+  await run(['./foo/fidget.txt'], { editor, overwrite: true, trash: true }, false);
 
-it.todo('cannot execute without input');
+  expect(log.error).toHaveBeenCalledTimes(1);
+  expect(log.error).toHaveBeenCalledWith(
+    'Please use either `overwrite` or `trash` options, but not both at the same time.'
+  );
+});
 
-it.todo('cannot execute without a matching glob pattern');
+it('cannot execute without input', async () => {
+  await run([''], { editor }, true);
+
+  expect(log.warn).toHaveBeenCalledTimes(1);
+  expect(log.warn).toHaveBeenCalledWith('No files found matching "". Aborting.');
+});
+
+it('cannot execute without a matching glob pattern', async () => {
+  await run(['./**/*.psd'], { editor }, true);
+
+  expect(log.warn).toHaveBeenCalledTimes(1);
+  expect(log.warn).toHaveBeenCalledWith('No files found matching "./**/*.psd". Aborting.');
+});
 
 function setEdits(arr: string[]) {
   mockedCp.__setEdits(arr.join(EOL) + EOL);
+}
+
+function run(files: string[], opts: Options, success: boolean): Promise<any> {
+  return expect(imv(files, opts))[success ? 'resolves' : 'rejects'].toStrictEqual({ success });
 }
