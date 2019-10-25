@@ -1,4 +1,5 @@
 import * as fs from 'fs-extra';
+import * as path from 'path';
 import chalk from 'chalk';
 import { log } from './log';
 
@@ -18,7 +19,7 @@ export async function validateFiles(
   }
 
   const fileSeen: Record<string, FileStat> = {};
-  const oldFilesSeen:  Record<string, true> = {};
+  const oldFilesSeen: Record<string, true> = {};
   const okToOverwrite = opts.overwrite || opts.trash;
 
   for (let i = 0; i < newFiles.length; ++i) {
@@ -27,6 +28,22 @@ export async function validateFiles(
 
     if (!fs.existsSync(oldFile)) {
       log.error(`Error: cannot read/write ${chalk.white(oldFile)}.`);
+      return Promise.reject({ success: false });
+    }
+
+    if (notChildPath(oldFile)) {
+      log.error(
+        `Error: existing file ${chalk.white(oldFile)} must be a child of the working directory. ` +
+          'Please start imv in the directory you want to use it.'
+      );
+      return Promise.reject({ success: false });
+    }
+
+    if (notChildPath(newFile)) {
+      log.error(
+        `Error: new file ${chalk.white(newFile)} must be a child of the working directory. ` +
+          'Please start imv in the directory you want to use it.'
+      );
       return Promise.reject({ success: false });
     }
 
@@ -58,4 +75,9 @@ export async function validateFiles(
   }
 
   return newFiles;
+}
+
+function notChildPath(dir: string): boolean {
+  const relative = path.relative(process.cwd(), dir);
+  return !relative || relative.startsWith('..') || path.isAbsolute(relative);
 }

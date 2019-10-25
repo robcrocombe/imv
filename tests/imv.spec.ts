@@ -25,6 +25,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   mockedFs.__mockFs({
+    '/usr/button.zip': 'ambulance',
     './flag.png': 'island',
     './bar/opera.png': 'pump',
     './foo/fidget.txt': 'weapon',
@@ -125,7 +126,13 @@ describe('Overwrite behaviour', () => {
   });
 });
 
-describe('Missing input', () => {
+describe('Cleanup behaviour', () => {
+  it.todo('deletes empty directories with cleanup=true');
+
+  it.todo('keeps empty directories with cleanup=false');
+});
+
+describe('Erroneous input', () => {
   it('cannot run without input', async () => {
     await run([''], { editor }, true);
 
@@ -138,6 +145,26 @@ describe('Missing input', () => {
 
     expect(log.warn).toHaveBeenCalledTimes(1);
     expect(log.warn).toHaveBeenCalledWith('No files found matching "./**/*.psd". Aborting.');
+  });
+
+  it('cannot run with existing files outside the cwd', async () => {
+    await run(['/usr/button.zip'], { editor }, false);
+
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith(
+      'Error: existing file /usr/button.zip must be a child of the working directory. Please start imv in the directory you want to use it.'
+    );
+  });
+
+  it('cannot run with changed files outside the cwd', async () => {
+    setEdits(['/usr/button.zip']);
+
+    await run(['./flag.png'], { editor }, false);
+
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith(
+      'Error: new file /usr/button.zip must be a child of the working directory. Please start imv in the directory you want to use it.'
+    );
   });
 });
 

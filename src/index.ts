@@ -2,6 +2,7 @@ import globby from 'globby';
 import * as tmp from 'tmp';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import deleteEmpty from 'delete-empty';
 import { EOL } from 'os';
 import { execSync } from 'child_process';
 import { getGitEditor } from './git-editor';
@@ -45,6 +46,11 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     })
     .then(newFiles => {
       return moveFiles(oldFiles, newFiles, opts);
+    })
+    .then(() => {
+      if (opts.cleanup) {
+        return deleteEmpty(process.cwd());
+      }
     })
     .then(() => {
       log('✨ Done!');
