@@ -1,6 +1,12 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
+let TEST_PARENT_PATH: string;
+
+export function __SET_TEST_PARENT_PATH(path: string) {
+  TEST_PARENT_PATH = path;
+}
+
 // rosettacode.org/wiki/Find_common_directory_path#JavaScript
 export function findCommonParentDir(files: string[]): string {
   // Given an array of strings, return an array of arrays, containing the
@@ -38,7 +44,7 @@ export function findCommonParentDir(files: string[]): string {
 // github.com/sindresorhus/is-path-inside
 export function notChildPath(dir: string): boolean {
   let childPath = path.resolve(dir);
-  let parentPath = process.cwd();
+  let parentPath = TEST_PARENT_PATH || process.cwd();
 
   if (process.platform === 'win32') {
     childPath = childPath.toLowerCase();

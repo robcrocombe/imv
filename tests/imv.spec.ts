@@ -9,6 +9,7 @@ import chalk from 'chalk';
 import { EOL } from 'os';
 import { imv } from '../src/index';
 import { log } from '../src/log';
+import * as helpers from '../src/helpers';
 import * as mockCp from './__mocks__/child_process';
 
 chalk.enabled = false;
@@ -20,6 +21,8 @@ jest.mock('../src/log');
 const mockedCp = (cp as unknown) as typeof mockCp;
 const editor = 'subl';
 const tempDir = './tests/temp';
+
+helpers.__SET_TEST_PARENT_PATH(path.resolve(tempDir));
 
 beforeAll(() => {
   mockedCp.__setEditor(editor);
@@ -147,8 +150,10 @@ describe('Erroneous input', () => {
     );
   });
 
-  it.skip('cannot run with existing files outside the cwd', async () => {
-    await run(['./tests/fixtures/flag.doc'], { editor }, false);
+  it('cannot run with existing files outside the cwd', async () => {
+    setEdits('/foo/new1.js', '/foo/new2.js');
+
+    await run(['tests/fixtures/flag.doc', 'tests/imv/foo/fidget.txt'], { editor }, false);
 
     expect(log.error).toHaveBeenCalledTimes(1);
     expect(log.error).toHaveBeenCalledWith(
@@ -156,14 +161,14 @@ describe('Erroneous input', () => {
     );
   });
 
-  it.skip('cannot run with changed files outside the cwd', async () => {
-    mockedCp.__setEdits('./tests/fixtures/flag.doc' + EOL);
+  it('cannot run with changed files outside the cwd', async () => {
+    mockedCp.__setEdits('tests/fixtures/flag.doc' + EOL);
 
     await run([file('/flag.doc')], { editor }, false);
 
     expect(log.error).toHaveBeenCalledTimes(1);
     expect(log.error).toHaveBeenCalledWith(
-      'Error: new file ./tests/fixtures/flag.doc must be a child of the working directory. Please start imv in the directory you want to use it.'
+      'Error: new file tests/fixtures/flag.doc must be a child of the working directory. Please start imv in the directory you want to use it.'
     );
   });
 });
