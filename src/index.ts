@@ -8,6 +8,7 @@ import { execSync } from 'child_process';
 import { getGitEditor } from './git-editor';
 import { validateFiles } from './validate-files';
 import { log } from './log';
+import { findCommonParentDir } from './helpers';
 
 export async function imv(input: string[], args: Options): Promise<RunResult> {
   tmp.setGracefulCleanup();
@@ -49,7 +50,7 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     })
     .then(() => {
       if (opts.cleanup) {
-        return deleteEmpty(process.cwd());
+        return deleteEmpty(findCommonParentDir(oldFiles));
       }
     })
     .then(() => {

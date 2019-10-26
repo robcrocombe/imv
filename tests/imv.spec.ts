@@ -13,6 +13,7 @@ import * as mockCp from './__mocks__/child_process';
 chalk.enabled = false;
 
 jest.mock('child_process');
+jest.mock('delete-empty');
 jest.mock('../src/log');
 
 const mockedFs = (fs as unknown) as typeof mockFs;

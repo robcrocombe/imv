@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
-import * as path from 'path';
 import chalk from 'chalk';
 import { log } from './log';
+import { notChildPath } from './helpers';
 
 export async function validateFiles(
   oldFiles: string[],
@@ -75,9 +75,4 @@ export async function validateFiles(
   }
 
   return newFiles;
-}
-
-function notChildPath(dir: string): boolean {
-  const relative = path.relative(process.cwd(), dir);
-  return !relative || relative.startsWith('..') || path.isAbsolute(relative);
 }
