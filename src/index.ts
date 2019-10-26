@@ -2,6 +2,7 @@ import globby from 'globby';
 import * as tmp from 'tmp';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import chalk from 'chalk';
 import deleteEmpty from 'delete-empty';
 import { EOL } from 'os';
 import { execSync } from 'child_process';
@@ -32,10 +33,12 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     return Promise.reject({ success: false });
   }
 
-  const oldFiles: string[] = input.length > 1 ? input : globby.sync(input);
+  const sanitisedInput = input && input.filter(Boolean);
+  const oldFiles: string[] =
+    sanitisedInput.length > 1 ? sanitisedInput : globby.sync(sanitisedInput, { dot: true });
 
   if (!oldFiles || !oldFiles.length) {
-    log.warn(`No files found matching "${input.join(', ')}". Aborting.`);
+    log.warn(`No files found matching "${chalk.white(input.join(', '))}". Aborting.`);
     return { success: true };
   }
 

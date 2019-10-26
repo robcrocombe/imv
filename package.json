@@ -37,12 +37,16 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "cacheDirectory": "./node_modules/.cache/jest"
+    "cacheDirectory": "./node_modules/.cache/jest",
+    "watchPathIgnorePatterns": [
+      "<rootDir>/tests/temp"
+    ]
   },
   "devDependencies": {
     "@types/fs-extra": "8.0.1",
     "@types/jest": "24.0.20",
     "@types/mock-fs": "4.10.0",
+    "@types/rimraf": "2.0.3",
     "@types/tmp": "0.1.0",
     "@typescript-eslint/eslint-plugin": "2.5.0",
     "@typescript-eslint/parser": "2.5.0",
@@ -53,6 +57,7 @@
     "jest": "24.9.0",
     "minimatch": "3.0.4",
     "mock-fs": "4.10.2",
+    "rimraf": "3.0.0",
     "ts-jest": "24.1.0"
   },
   "dependencies": {

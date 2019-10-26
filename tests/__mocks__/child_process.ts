@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { writeFileSync } from './fs-extra';
+import * as fs from 'fs-extra';
 
 export let __edits: string;
 export let __editor: string;
@@ -18,5 +18,5 @@ export function execSync(command: string) {
   // Extract file path
   const path = command.substring(__editor.length + 1);
 
-  writeFileSync(path, __edits, 'utf8');
+  fs.writeFileSync(path, __edits, 'utf8');
 }

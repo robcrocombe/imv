@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-// https://www.rosettacode.org/wiki/Find_common_directory_path#JavaScript
+// rosettacode.org/wiki/Find_common_directory_path#JavaScript
 export function findCommonParentDir(files: string[]): string {
   // Given an array of strings, return an array of arrays, containing the
   // strings split at the given separator
@@ -35,7 +35,22 @@ export function findCommonParentDir(files: string[]): string {
   }
 }
 
+// github.com/sindresorhus/is-path-inside
 export function notChildPath(dir: string): boolean {
-  const relative = path.relative(process.cwd(), dir);
-  return !relative || relative.startsWith('..') || path.isAbsolute(relative);
+  let childPath = path.resolve(dir);
+  let parentPath = process.cwd();
+
+  if (process.platform === 'win32') {
+    childPath = childPath.toLowerCase();
+    parentPath = parentPath.toLowerCase();
+  }
+
+  if (childPath === parentPath) {
+    return false;
+  }
+
+  childPath += path.sep;
+  parentPath += path.sep;
+
+  return !childPath.startsWith(parentPath)
 }

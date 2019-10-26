@@ -3,5 +3,5 @@ export function setGracefulCleanup() {
 }
 
 export function dirSync(): { name: string } {
-  return { name: './imv/' };
+  return { name: './tests/temp/' };
 }
