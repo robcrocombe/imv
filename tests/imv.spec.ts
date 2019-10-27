@@ -6,6 +6,7 @@ import * as cp from 'child_process';
 import * as path from 'path';
 import rimraf from 'rimraf';
 import chalk from 'chalk';
+import * as trash from 'trash';
 import { EOL } from 'os';
 import { imv } from '../src/index';
 import { log } from '../src/log';
@@ -16,6 +17,7 @@ chalk.enabled = false;
 
 jest.mock('child_process');
 jest.mock('../src/log');
+jest.spyOn(trash, 'default');
 
 const mockedCp = (cp as unknown) as typeof mockCp;
 const editor = 'subl';
@@ -49,8 +51,8 @@ describe('Basic functionality', () => {
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
     expect(fileContents('/foo/fidget2.txt')).toBe('weapon\n');
 
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log).toHaveBeenCalledWith('✨ Done!');
+    expect(log).toHaveBeenCalledTimes(2);
+    expect(log).toHaveBeenLastCalledWith('✨ Done!');
   });
 
   it('moves using a glob pattern', async () => {
@@ -67,8 +69,8 @@ describe('Basic functionality', () => {
     expect(fileExists('/foo/myth.doc')).toBeFalsy();
     expect(fileContents('/foo/myth.jpg')).toBe('tram\n');
 
-    expect(log).toHaveBeenCalledTimes(1);
-    expect(log).toHaveBeenCalledWith('✨ Done!');
+    expect(log).toHaveBeenCalledTimes(2);
+    expect(log).toHaveBeenLastCalledWith('✨ Done!');
   });
 });
 
@@ -115,13 +117,23 @@ describe('Overwrite behaviour', () => {
 
     await run(files('/foo/fidget.txt'), { editor, overwrite: true }, true);
 
-    expect(log).toHaveBeenCalledTimes(1);
+    expect(trash.default).toHaveBeenCalledTimes(0);
+    expect(log).toHaveBeenCalledTimes(2);
+
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
     expect(fileContents('/foo/guitar.js')).toBe('weapon\n');
   });
 
-  // , async () => {}
-  it.todo('sends non-matching files to the recycle bin with trash=true');
+  it('sends non-matching files to the recycle bin with trash=true', async () => {
+    setEdits('/foo/guitar.js');
+
+    await run(files('/foo/fidget.txt'), { editor, trash: true }, true);
+
+    expect(trash.default).toHaveBeenCalledTimes(1);
+    expect(log).toHaveBeenCalledTimes(2);
+    expect(fileExists('/foo/fidget.txt')).toBeFalsy();
+    expect(fileContents('/foo/guitar.js')).toBe('weapon\n');
+  });
 
   it('cannot run with both overwrite=true and trash=true', async () => {
     await run(files('/foo/fidget.txt'), { editor, overwrite: true, trash: true }, false);
@@ -139,7 +151,7 @@ describe('Cleanup behaviour', () => {
 
     await run(files('/bar/opera.doc'), { editor, cleanup: true }, true);
 
-    expect(log).toHaveBeenCalledTimes(1);
+    expect(log).toHaveBeenCalledTimes(2);
     expect(fileExists('/bar')).toBeFalsy();
     expect(fileContents('/new_folder/opera.doc')).toBe('pump\n');
   });
@@ -149,7 +161,7 @@ describe('Cleanup behaviour', () => {
 
     await run(files('/bar/opera.doc'), { editor, cleanup: false }, true);
 
-    expect(log).toHaveBeenCalledTimes(1);
+    expect(log).toHaveBeenCalledTimes(2);
     expect(fileExists('/bar')).toBeTruthy();
     expect(fileExists('/bar/opera.doc')).toBeFalsy();
     expect(fileContents('/new_folder/opera.doc')).toBe('pump\n');

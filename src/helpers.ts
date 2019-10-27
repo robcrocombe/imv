@@ -61,5 +61,5 @@ export function notChildPath(dir: string): boolean {
   childPath += path.sep;
   parentPath += path.sep;
 
-  return !childPath.startsWith(parentPath)
+  return !childPath.startsWith(parentPath);
 }

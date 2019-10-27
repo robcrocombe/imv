@@ -11,7 +11,7 @@ program
   .option('-e, --editor <editor>', 'use this editor to modify your file paths')
   .option('-o, --overwrite', 'overwrite existing files') // TODO
   .option('-t, --trash', 'send existing files to the trash bin') // TODO
-  .option('-c, --cleanup', 'remove empty folders after moving files') // TODO
+  .option('-c, --cleanup', 'remove empty affected folders after moving files') // TODO
   .parse(process.argv);
 
 if (!program.args.length) {
