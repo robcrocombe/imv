@@ -114,7 +114,13 @@ async function moveFiles(oldFiles: string[], newFiles: string[], opts: Options):
     }
   }
 
-  return Promise.all(movePromises).then(() => log(''));
+  return Promise.all(movePromises)
+    .then(() => log(''))
+    .catch(e => {
+      // Newline between progress and error message
+      log('');
+      throw e;
+    });
 }
 
 // To try and avoid checking wide dir trees and dirs we don't

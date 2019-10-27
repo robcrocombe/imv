@@ -89,7 +89,7 @@ describe('Overwrite behaviour', () => {
   });
 
   it('cannot overwrite matching files with overwrite=true', async () => {
-    setEdits('/foo/brand_new.js', '/foo/skate.js', '/foo/guitar.js');
+    setEdits('/foo/dollar.js', '/foo/skate.js', '/foo/brand_new.js');
 
     await run(
       files('/foo/guitar.js', '/foo/skate.js', '/foo/dollar.js'),
@@ -99,7 +99,7 @@ describe('Overwrite behaviour', () => {
 
     expect(log.error).toHaveBeenCalledTimes(1);
     expect(log.error).toHaveBeenCalledWith(
-      'Error: cannot rename tests/temp/foo/dollar.js to tests/temp/foo/guitar.js because the new file is also pending movement.'
+      'Error: cannot rename tests/temp/foo/guitar.js to tests/temp/foo/dollar.js because the new file is also pending movement.'
     );
   });
 

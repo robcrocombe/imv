@@ -18,9 +18,12 @@ export async function validateFiles(
     return Promise.reject({ success: false });
   }
 
-  const fileSeen: Record<string, FileStat> = {};
-  const oldFilesSeen: Record<string, true> = {};
   const okToOverwrite = opts.overwrite || opts.trash;
+  const fileSeen: Record<string, FileStat> = {};
+  const existingFiles: Record<string, true> = oldFiles.reduce((map, key) => {
+    map[key] = true;
+    return map;
+  }, {});
 
   for (let i = 0; i < newFiles.length; ++i) {
     const oldFile = oldFiles[i];
@@ -61,7 +64,7 @@ export async function validateFiles(
       return Promise.reject({ success: false });
     }
 
-    if (oldFilesSeen[newFile]) {
+    if (oldFile !== newFile && existingFiles[newFile]) {
       const oldFmtd = chalk.white(oldFile);
       const newFmtd = chalk.white(newFile);
       log.error(
@@ -70,7 +73,6 @@ export async function validateFiles(
       return Promise.reject({ success: false });
     }
 
-    oldFilesSeen[oldFile] = true;
     fileSeen[newFile] = { line: i };
   }
 }
