@@ -24,6 +24,6 @@ jobs:
       run: |
         npm ci
         npm run lint
-        npm run test-ci
+        npm run test-once
       env:
         CI: true
