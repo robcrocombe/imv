@@ -1,6 +1,6 @@
-import gitConfigPath from 'git-config-path';
-import * as ini from 'ini';
 import * as fs from 'fs-extra';
+import * as ini from 'ini';
+import gitConfigPath from 'git-config-path';
 
 export function getGitEditor(): string {
   let editor: string;

@@ -1,16 +1,16 @@
-import globby from 'globby';
-import * as tmp from 'tmp';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as tmp from 'tmp';
 import chalk from 'chalk';
-import trash from 'trash';
 import deleteEmpty from 'delete-empty';
+import globby from 'globby';
+import trash from 'trash';
 import { EOL } from 'os';
 import { execSync } from 'child_process';
-import { getGitEditor } from './git-editor';
-import { validateFiles } from './validate-files';
-import { log, printProgress } from './log';
 import { findCommonParentDir } from './helpers';
+import { getGitEditor } from './git-editor';
+import { log, printProgress } from './log';
+import { validateFiles } from './validate-files';
 
 export async function imv(input: string[], args: Options): Promise<RunResult> {
   tmp.setGracefulCleanup();
