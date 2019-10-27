@@ -4,11 +4,17 @@
 
 _An interactive file renamer/mover inspired by git_
 
-### Usage
+## Install
+
+```
+npm install -g imv
+```
+
+## Usage
 
 1) You give imv a list of files you want to move or rename.
 ```
-$> imv --cleanup './home/*.png'
+imv --cleanup './home/*.png'
 ```
 2) It opens the list in your favorite code editor (either by the `--editor` arg or automatically via your git config).
 ```
@@ -41,7 +47,7 @@ Options:
   -h, --help             output usage information
 ```
 
-### Limitations
+## Limitations
 
 To keep things simple, there are a few limitations:
 
@@ -49,7 +55,7 @@ To keep things simple, there are a few limitations:
 - It cannot overwrite files that are also matched by the input glob pattern.
 - It cannot swap two file paths.
 
-### Development
+## Development
 
 You can install imv locally to develop on:
 
