@@ -7,7 +7,7 @@ export async function validateFiles(
   oldFiles: string[],
   newFiles: string[],
   opts: Options
-): Promise<string[]> {
+): Promise<void> {
   if (oldFiles.length !== newFiles.length) {
     const oldLength = chalk.white(oldFiles.length.toString());
     const newLength = chalk.white(newFiles.length.toString());
@@ -73,6 +73,4 @@ export async function validateFiles(
     oldFilesSeen[oldFile] = true;
     fileSeen[newFile] = { line: i };
   }
-
-  return newFiles;
 }

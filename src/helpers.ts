@@ -7,8 +7,11 @@ export function __SET_TEST_PARENT_PATH(path: string) {
   TEST_PARENT_PATH = path;
 }
 
-// rosettacode.org/wiki/Find_common_directory_path#JavaScript
+// Reference: rosettacode.org/wiki/Find_common_directory_path#JavaScript
 export function findCommonParentDir(files: string[]): string {
+  // Extract directories from file paths
+  const dirs = files.map(path.dirname);
+
   // Given an array of strings, return an array of arrays, containing the
   // strings split at the given separator
   const splitStrings = (a, sep = '/') => a.map(i => i.split(sep));
@@ -22,10 +25,10 @@ export function findCommonParentDir(files: string[]): string {
   // [['a', 'A', 1], ['b', 'B', 2], ['c', 'C', 3]]
   const rotate = a => a[0].map((_e, i) => a.map(elAt(i)));
 
-  // Checks of all the elements in the array are the same
+  // Checks if all the elements in the array are the same
   const allElementsEqual = arr => arr.every(e => e === arr[0]);
 
-  const commonDir = rotate(splitStrings(files, path.sep))
+  const commonDir = rotate(splitStrings(dirs, path.sep))
     .filter(allElementsEqual)
     .map(elAt(0))
     .join(path.sep);
@@ -37,7 +40,7 @@ export function findCommonParentDir(files: string[]): string {
   ) {
     return process.cwd();
   } else {
-    return commonDir;
+    return path.resolve(commonDir);
   }
 }
 

@@ -15,13 +15,15 @@ import * as mockCp from './__mocks__/child_process';
 chalk.enabled = false;
 
 jest.mock('child_process');
-jest.mock('delete-empty');
 jest.mock('../src/log');
 
 const mockedCp = (cp as unknown) as typeof mockCp;
 const editor = 'subl';
 const tempDir = './tests/temp';
 
+// To avoid a dependency on files outside the tempDir,
+// set it as the "root" path in our helper functions so
+// we can test what happens when we try to move outside files.
 helpers.__SET_TEST_PARENT_PATH(path.resolve(tempDir));
 
 beforeAll(() => {
@@ -48,6 +50,7 @@ describe('Basic functionality', () => {
     expect(fileContents('/foo/fidget2.txt')).toBe('weapon\n');
 
     expect(log).toHaveBeenCalledTimes(1);
+    expect(log).toHaveBeenCalledWith('✨ Done!');
   });
 
   it('moves using a glob pattern', async () => {
@@ -65,6 +68,7 @@ describe('Basic functionality', () => {
     expect(fileContents('/foo/myth.jpg')).toBe('tram\n');
 
     expect(log).toHaveBeenCalledTimes(1);
+    expect(log).toHaveBeenCalledWith('✨ Done!');
   });
 });
 
@@ -112,6 +116,8 @@ describe('Overwrite behaviour', () => {
     await run(files('/foo/fidget.txt'), { editor, overwrite: true }, true);
 
     expect(log).toHaveBeenCalledTimes(1);
+    expect(fileExists('/foo/fidget.txt')).toBeFalsy();
+    expect(fileContents('/foo/guitar.js')).toBe('weapon\n');
   });
 
   // , async () => {}
@@ -128,9 +134,26 @@ describe('Overwrite behaviour', () => {
 });
 
 describe('Cleanup behaviour', () => {
-  it.todo('deletes empty directories with cleanup=true');
+  it('deletes empty directories with cleanup=true', async () => {
+    setEdits('/new_folder/opera.doc');
 
-  it.todo('keeps empty directories with cleanup=false');
+    await run(files('/bar/opera.doc'), { editor, cleanup: true }, true);
+
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(fileExists('/bar')).toBeFalsy();
+    expect(fileContents('/new_folder/opera.doc')).toBe('pump\n');
+  });
+
+  it('keeps empty directories with cleanup=false', async () => {
+    setEdits('/new_folder/opera.doc');
+
+    await run(files('/bar/opera.doc'), { editor, cleanup: false }, true);
+
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(fileExists('/bar')).toBeTruthy();
+    expect(fileExists('/bar/opera.doc')).toBeFalsy();
+    expect(fileContents('/new_folder/opera.doc')).toBe('pump\n');
+  });
 });
 
 describe('Erroneous input', () => {

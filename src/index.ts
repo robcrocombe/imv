@@ -43,17 +43,20 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
   }
 
   const dir = tmp.dirSync({ unsafeCleanup: true });
+  let newFiles: string[];
 
   return promptForNewFiles(oldFiles, dir, opts)
-    .then(newFiles => {
+    .then(res => {
+      newFiles = res;
       return validateFiles(oldFiles, newFiles, opts);
     })
-    .then(newFiles => {
+    .then(() => {
       return moveFiles(oldFiles, newFiles, opts);
     })
     .then(() => {
       if (opts.cleanup) {
-        return deleteEmpty(findCommonParentDir(oldFiles));
+        const allFilePaths = [...oldFiles, ...newFiles];
+        return cleanup(allFilePaths);
       }
     })
     .then(() => {
@@ -99,4 +102,14 @@ function moveFiles(oldFiles: string[], newFiles: string[], opts: Options): Promi
   }
 
   return Promise.all(movePromises);
+}
+
+// To try and avoid checking wide dir trees and dirs we don't
+// care about, find the nearest common parent directory to the
+// affected files.
+// E.g. we don't want to mess with node_modules if we run:
+// $> imv ./foo/*.js
+// from a JS repo, just the dirs inside ./foo/
+function cleanup(files): Promise<void> {
+  return deleteEmpty(findCommonParentDir(files));
 }
