@@ -18,7 +18,7 @@
     "prepublishOnly": "npm run lint && npm run dist",
     "lint": "eslint --format=node_modules/eslint-codeframe-formatter --max-warnings=0 './{src,tests}/**/*.ts'",
     "test": "jest --watch",
-    "test-ci": "jest"
+    "test-once": "jest"
   },
   "repository": {
     "type": "git",
