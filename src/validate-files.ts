@@ -3,6 +3,18 @@ import chalk from 'chalk';
 import { log } from './log';
 import { notChildPath } from './helpers';
 
+/*
+ * A note about file system case sensitivity.
+ * Depending on the users fs, `fs.existsSync` might return true if the same
+ * file exists in a different case, e.g. foobar.js == FooBar.js
+ *
+ * Here are a list of the possible combinations and outcomes:
+ * CI + overwrite:    get case error
+ * CI + no overwrite: get file exists error
+ * CS + overwrite:    case change detected, fs decides if you get case error with fs.exists
+ * CS + no overwrite: fs.exists decides, might get file exists error or not
+ */
+
 export async function validateFiles(
   oldFiles: string[],
   newFiles: string[],
@@ -25,6 +37,7 @@ export async function validateFiles(
     return map;
   }, {});
 
+  // TODO: check every file and show all errors like moveFiles()
   for (let i = 0; i < newFiles.length; ++i) {
     const oldFile = oldFiles[i];
     const newFile = newFiles[i];
@@ -50,8 +63,15 @@ export async function validateFiles(
       return Promise.reject({ success: false });
     }
 
+    // File exists error
     if (oldFile !== newFile && !okToOverwrite && fs.existsSync(newFile)) {
       log.error(`Error: file ${chalk.white(newFile)} already exists.`);
+      return Promise.reject({ success: false });
+    }
+
+    // Case error
+    if (okToOverwrite && caseChanged(oldFile, newFile) && fs.existsSync(newFile)) {
+      log.error(`Error: cannot overwrite ${chalk.white(newFile)} with the same file in a different case.`);
       return Promise.reject({ success: false });
     }
 
@@ -75,4 +95,8 @@ export async function validateFiles(
 
     fileSeen[newFile] = { line: i };
   }
+}
+
+function caseChanged(oldFile: string, newFile: string): boolean {
+  return oldFile !== newFile && oldFile.toLowerCase() === newFile.toLowerCase();
 }

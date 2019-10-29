@@ -88,8 +88,8 @@ async function promptForNewFiles(
   return newFiles;
 }
 
-async function moveFiles(oldFiles: string[], newFiles: string[], opts: Options): Promise<void> {
-  const movePromises: Promise<void>[] = [];
+async function moveFiles(oldFiles: string[], newFiles: string[], opts: Options): Promise<RunResult> {
+  const movePromises: Promise<MoveResult>[] = [];
   const overwrite = opts.overwrite;
   let progress = 0;
   printProgress(progress, newFiles.length);
@@ -103,10 +103,18 @@ async function moveFiles(oldFiles: string[], newFiles: string[], opts: Options):
         await trash(newFile);
       }
 
-      const p = fs.move(oldFile, newFile, { overwrite }).then(() => {
-        progress++;
-        printProgress(progress, newFiles.length);
-      });
+      const p = fs
+        .move(oldFile, newFile, { overwrite })
+        .then(() => {
+          progress++;
+          printProgress(progress, newFiles.length);
+          return { success: true };
+        })
+        .catch(err => {
+          const error = typeof err === 'object' ? err.stack || err.message : err;
+          return { success: false, error };
+        });
+
       movePromises.push(p);
     } else {
       progress++;
@@ -114,13 +122,19 @@ async function moveFiles(oldFiles: string[], newFiles: string[], opts: Options):
     }
   }
 
-  return Promise.all(movePromises)
-    .then(() => log(''))
-    .catch(e => {
-      // Newline between progress and error message
-      log('');
-      throw e;
-    });
+  return Promise.all(movePromises).then(res => {
+    // Newline between progress and next message
+    log('');
+
+    const errors = res.filter(r => r.error).map(e => e.error);
+
+    if (errors.length) {
+      log.error(errors.join(EOL));
+      return Promise.reject({ success: false });
+    } else {
+      return { success: true };
+    }
+  });
 }
 
 // To try and avoid checking wide dir trees and dirs we don't

@@ -9,6 +9,10 @@ interface RunResult {
   success: boolean;
 }
 
+interface MoveResult extends RunResult {
+  error?: any;
+}
+
 interface FileStat {
   line: number;
 }

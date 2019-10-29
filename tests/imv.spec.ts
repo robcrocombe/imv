@@ -88,6 +88,22 @@ describe('Overwrite behaviour', () => {
     expect(log.error).toHaveBeenCalledWith('Error: file tests/temp/foo/guitar.js already exists.');
   });
 
+  // it('cannot overwrite the same file with a different letter case', async () => {
+  //   setEdits('/Flag.doc', '/foo/dollar.JS', '/Bar/opera.doc');
+
+  //   await run(
+  //     files('/flag.doc', '/foo/dollar.js', '/bar/opera.doc'),
+  //     { editor, overwrite: false },
+  //     false
+  //   );
+
+  //   expect(log.error).toHaveBeenCalledTimes(1);
+  //   expect(log.error).toHaveBeenCalledWith(
+  //     'Error: file tests/temp/Flag.js already exists.\n' +
+  //     'Error: file tests/temp/foo/dollar.JS already exists.\n' +
+  //     'Error: file tests/temp/Bar/opera.doc already exists.\n');
+  // });
+
   it('cannot overwrite matching files with overwrite=true', async () => {
     setEdits('/foo/dollar.js', '/foo/skate.js', '/foo/brand_new.js');
 
