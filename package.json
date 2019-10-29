@@ -1,58 +1,43 @@
 {
   "name": "imv",
-  "version": "1.0.0",
   "description": "Interactive file mover inspired by git",
-  "main": "./src/index.js",
-  "files": [
-    "dist/**/*"
-  ],
-  "bin": {
-    "imv": "./dist/cli.js"
-  },
-  "engines": {
-    "node": ">=10.x"
-  },
-  "scripts": {
-    "start": "tsc -w",
-    "dist": "tsc",
-    "prepublishOnly": "npm run validate && npm run dist",
-    "validate": "npm run lint && npm run test-once",
-    "lint": "eslint --format=node_modules/eslint-codeframe-formatter --max-warnings=0 './{src,tests}/**/*.ts'",
-    "test": "jest --watch",
-    "test-once": "jest"
-  },
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Rob Crocombe <me@robcrocombe.com> (http://robcrocombe.com)",
+  "homepage": "https://github.com/robcrocombe/imv#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/robcrocombe/imv.git"
   },
-  "author": "Rob Crocombe <me@robcrocombe.com> (http://robcrocombe.com)",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/robcrocombe/imv/issues"
   },
-  "homepage": "https://github.com/robcrocombe/imv#readme",
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+  "main": "./src/index.js",
+  "bin": {
+    "imv": "./dist/cli.js"
   },
-  "lint-staged": {
-    "{src,tests}/**/*.ts": [
-      "prettier --write",
-      "git add"
-    ]
+  "scripts": {
+    "dist": "tsc",
+    "lint": "eslint --format=node_modules/eslint-codeframe-formatter --max-warnings=0 './{src,tests}/**/*.ts'",
+    "prepublishOnly": "npm run validate && npm run dist",
+    "start": "tsc -w",
+    "test": "jest --watch",
+    "test-once": "jest",
+    "validate": "npm run lint && npm run test-once"
   },
-  "prettier": {
-    "printWidth": 100,
-    "singleQuote": true,
-    "trailingComma": "es5"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "cacheDirectory": "./node_modules/.cache/jest",
-    "watchPathIgnorePatterns": [
-      "<rootDir>/tests/temp"
-    ]
+  "dependencies": {
+    "@types/git-config-path": "2.0.0",
+    "@types/ini": "1.3.30",
+    "chalk": "2.4.2",
+    "commander": "3.0.2",
+    "delete-empty": "3.0.0",
+    "fs-extra": "8.1.0",
+    "git-config-path": "2.0.0",
+    "globby": "10.0.1",
+    "ini": "1.3.5",
+    "tmp": "0.1.0",
+    "trash": "6.0.0",
+    "typescript": "3.6.4"
   },
   "devDependencies": {
     "@types/fs-extra": "8.0.1",
@@ -75,29 +60,44 @@
     "rimraf": "3.0.0",
     "ts-jest": "24.1.0"
   },
-  "dependencies": {
-    "@types/git-config-path": "2.0.0",
-    "@types/ini": "1.3.30",
-    "chalk": "2.4.2",
-    "commander": "3.0.2",
-    "delete-empty": "3.0.0",
-    "fs-extra": "8.1.0",
-    "git-config-path": "2.0.0",
-    "globby": "10.0.1",
-    "ini": "1.3.5",
-    "tmp": "0.1.0",
-    "trash": "6.0.0",
-    "typescript": "3.6.4"
-  },
   "keywords": [
-    "fs",
+    "directory",
     "file",
     "file system",
-    "directory",
-    "recursive",
-    "mv",
+    "fs",
     "git",
     "interactive",
-    "move"
-  ]
+    "move",
+    "mv",
+    "recursive"
+  ],
+  "engines": {
+    "node": ">=10.x"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "{src,tests}/**/*.ts": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "cacheDirectory": "./node_modules/.cache/jest",
+    "watchPathIgnorePatterns": [
+      "<rootDir>/tests/temp"
+    ]
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  }
 }
