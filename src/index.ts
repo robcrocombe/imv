@@ -88,7 +88,11 @@ async function promptForNewFiles(
   return newFiles;
 }
 
-async function moveFiles(oldFiles: string[], newFiles: string[], opts: Options): Promise<RunResult> {
+async function moveFiles(
+  oldFiles: string[],
+  newFiles: string[],
+  opts: Options
+): Promise<RunResult> {
   const movePromises: Promise<MoveResult>[] = [];
   const overwrite = opts.overwrite;
   let progress = 0;

@@ -15,7 +15,8 @@
   "scripts": {
     "start": "tsc -w",
     "dist": "tsc",
-    "prepublishOnly": "npm run lint && npm run dist",
+    "prepublishOnly": "npm run validate && npm run dist",
+    "validate": "npm run lint && npm run test-once",
     "lint": "eslint --format=node_modules/eslint-codeframe-formatter --max-warnings=0 './{src,tests}/**/*.ts'",
     "test": "jest --watch",
     "test-once": "jest"
@@ -30,6 +31,17 @@
     "url": "https://github.com/robcrocombe/imv/issues"
   },
   "homepage": "https://github.com/robcrocombe/imv#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "{src,tests}/**/*.ts": [
+      "prettier --write",
+      "git add"
+    ]
+  },
   "prettier": {
     "printWidth": 100,
     "singleQuote": true,
@@ -54,9 +66,12 @@
     "eslint-codeframe-formatter": "1.0.2",
     "eslint-plugin-import": "2.18.2",
     "eslint-plugin-jest": "23.0.2",
+    "husky": "3.0.9",
     "jest": "24.9.0",
+    "lint-staged": "9.4.2",
     "minimatch": "3.0.4",
     "mock-fs": "4.10.2",
+    "prettier": "1.18.2",
     "rimraf": "3.0.0",
     "ts-jest": "24.1.0"
   },

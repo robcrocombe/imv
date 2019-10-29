@@ -71,7 +71,9 @@ export async function validateFiles(
 
     // Case error
     if (okToOverwrite && caseChanged(oldFile, newFile) && fs.existsSync(newFile)) {
-      log.error(`Error: cannot overwrite ${chalk.white(newFile)} with the same file in a different case.`);
+      log.error(
+        `Error: cannot overwrite ${chalk.white(newFile)} with the same file in a different case.`
+      );
       return Promise.reject({ success: false });
     }
 
