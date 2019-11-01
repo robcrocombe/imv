@@ -10,6 +10,7 @@ import chalk from 'chalk';
 import { EOL } from 'os';
 import { imv } from '../src/index';
 import { log } from '../src/log';
+import * as logger from '../src/log';
 import * as helpers from '../src/helpers';
 // eslint-disable-next-line jest/no-mocks-import
 import * as mockCp from './__mocks__/child_process';
@@ -17,7 +18,8 @@ import * as mockCp from './__mocks__/child_process';
 chalk.enabled = false;
 
 jest.mock('child_process');
-jest.mock('../src/log');
+// jest.mock('../src/log');
+jest.spyOn(logger, 'log');
 jest.spyOn(trash, 'default');
 
 const mockedCp = (cp as unknown) as typeof mockCp;
@@ -30,7 +32,6 @@ const tempDir = './tests/temp';
 helpers.__SET_TEST_PARENT_PATH(path.resolve(tempDir));
 
 beforeAll(() => {
-  console.log('beforeAll');
   mockedCp.__setEditor(editor);
 });
 
@@ -47,8 +48,6 @@ afterEach(cb => {
 describe.only('Basic functionality', () => {
   it('moves a single file', async () => {
     setEdits('/foo/fidget2.txt');
-
-    console.log('it moves 1');
 
     await run(files('/foo/fidget.txt'), { editor }, true);
 
