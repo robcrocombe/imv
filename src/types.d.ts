@@ -16,3 +16,5 @@ interface MoveResult extends RunResult {
 interface FileStat {
   line: number;
 }
+
+type FileMove = () => Promise<void>;

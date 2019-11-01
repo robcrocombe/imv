@@ -11,6 +11,7 @@ import { EOL } from 'os';
 import { imv } from '../src/index';
 import { log } from '../src/log';
 import * as helpers from '../src/helpers';
+// eslint-disable-next-line jest/no-mocks-import
 import * as mockCp from './__mocks__/child_process';
 
 chalk.enabled = false;
@@ -88,6 +89,7 @@ describe('Overwrite behaviour', () => {
     expect(log.error).toHaveBeenCalledWith('Error: file tests/temp/foo/guitar.js already exists.');
   });
 
+  // eslint-disable-next-line jest/no-commented-out-tests
   // it('cannot overwrite the same file with a different letter case', async () => {
   //   setEdits('/Flag.doc', '/foo/dollar.JS', '/Bar/opera.doc');
 

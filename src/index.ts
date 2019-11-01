@@ -4,7 +4,6 @@ import * as tmp from 'tmp';
 import chalk from 'chalk';
 import deleteEmpty from 'delete-empty';
 import globby from 'globby';
-import trash from 'trash';
 import { EOL } from 'os';
 import { execSync } from 'child_process';
 import { findCommonParentDir } from './helpers';
@@ -51,8 +50,8 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
       newFiles = res;
       return validateFiles(oldFiles, newFiles, opts);
     })
-    .then(() => {
-      return moveFiles(oldFiles, newFiles, opts);
+    .then(fileMoves => {
+      return moveFiles(fileMoves);
     })
     .then(() => {
       if (opts.cleanup) {
@@ -88,42 +87,26 @@ async function promptForNewFiles(
   return newFiles;
 }
 
-async function moveFiles(
-  oldFiles: string[],
-  newFiles: string[],
-  opts: Options
-): Promise<RunResult> {
+async function moveFiles(fileMoves: FileMove[]): Promise<RunResult> {
   const movePromises: Promise<MoveResult>[] = [];
-  const overwrite = opts.overwrite;
   let progress = 0;
-  printProgress(progress, newFiles.length);
+  printProgress(progress, fileMoves.length);
 
-  for (let i = 0; i < newFiles.length; ++i) {
-    const oldFile = oldFiles[i];
-    const newFile = newFiles[i];
+  for (let i = 0; i < fileMoves.length; ++i) {
+    const move = fileMoves[i];
 
-    if (oldFile !== newFile) {
-      if (opts.trash && fs.existsSync(newFile)) {
-        await trash(newFile);
-      }
+    const p = move()
+      .then(() => {
+        progress++;
+        printProgress(progress, fileMoves.length);
+        return { success: true };
+      })
+      .catch(err => {
+        const error = typeof err === 'object' ? err.stack || err.message : err;
+        return { success: false, error };
+      });
 
-      const p = fs
-        .move(oldFile, newFile, { overwrite })
-        .then(() => {
-          progress++;
-          printProgress(progress, newFiles.length);
-          return { success: true };
-        })
-        .catch(err => {
-          const error = typeof err === 'object' ? err.stack || err.message : err;
-          return { success: false, error };
-        });
-
-      movePromises.push(p);
-    } else {
-      progress++;
-      printProgress(progress, newFiles.length);
-    }
+    movePromises.push(p);
   }
 
   return Promise.all(movePromises).then(res => {

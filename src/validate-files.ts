@@ -1,25 +1,25 @@
 import * as fs from 'fs-extra';
+import * as path from 'path';
+import trash from 'trash';
 import chalk from 'chalk';
 import { log } from './log';
 import { notChildPath } from './helpers';
 
 /*
  * A note about file system case sensitivity.
- * Depending on the users fs, `fs.existsSync` might return true if the same
+ * Depending on the user's fs, `fs.existsSync` might return true if the same
  * file exists in a different case, e.g. foobar.js == FooBar.js
  *
- * Here are a list of the possible combinations and outcomes:
- * CI + overwrite:    get case error
- * CI + no overwrite: get file exists error
- * CS + overwrite:    case change detected, fs decides if you get case error with fs.exists
- * CS + no overwrite: fs.exists decides, might get file exists error or not
+ * To make it simpler, we're going to require the user to use the `overwrite` flag.
  */
+
+// TODO: add overwrite confirm
 
 export async function validateFiles(
   oldFiles: string[],
   newFiles: string[],
   opts: Options
-): Promise<void> {
+): Promise<FileMove[]> {
   if (oldFiles.length !== newFiles.length) {
     const oldLength = chalk.white(oldFiles.length.toString());
     const newLength = chalk.white(newFiles.length.toString());
@@ -36,11 +36,13 @@ export async function validateFiles(
     map[key] = true;
     return map;
   }, {});
+  const fileMoves: FileMove[] = [];
 
   // TODO: check every file and show all errors like moveFiles()
   for (let i = 0; i < newFiles.length; ++i) {
     const oldFile = oldFiles[i];
     const newFile = newFiles[i];
+    let fileRenamed = false;
 
     if (!fs.existsSync(oldFile)) {
       log.error(`Error: cannot read/write ${chalk.white(oldFile)}.`);
@@ -70,11 +72,18 @@ export async function validateFiles(
     }
 
     // Case error
-    if (okToOverwrite && caseChanged(oldFile, newFile) && fs.existsSync(newFile)) {
-      log.error(
-        `Error: cannot overwrite ${chalk.white(newFile)} with the same file in a different case.`
-      );
-      return Promise.reject({ success: false });
+    if (isRename(oldFile, newFile) && fs.existsSync(newFile)) {
+      if (opts.overwrite) {
+        fileRenamed = true;
+      } else {
+        log.error(
+          `Error: cannot overwrite ${chalk.white(
+            newFile
+          )} with the same file in a different case. ` +
+            'Please use the `overwrite` flag to perform this action.'
+        );
+        return Promise.reject({ success: false });
+      }
     }
 
     if (fileSeen[newFile]) {
@@ -96,9 +105,43 @@ export async function validateFiles(
     }
 
     fileSeen[newFile] = { line: i };
+
+    if (oldFile === newFile) {
+      fileMoves.push(() => unchanged());
+    } else if (fileRenamed) {
+      fileMoves.push(() => rename(oldFile, newFile));
+    } else if (opts.trash) {
+      fileMoves.push(() => moveWithTrash(oldFile, newFile));
+    } else {
+      fileMoves.push(() => move(oldFile, newFile, opts.overwrite));
+    }
   }
+
+  return fileMoves;
 }
 
-function caseChanged(oldFile: string, newFile: string): boolean {
-  return oldFile !== newFile && oldFile.toLowerCase() === newFile.toLowerCase();
+function isRename(oldFile: string, newFile: string): boolean {
+  return (
+    oldFile.toLowerCase() === newFile.toLowerCase() &&
+    path.dirname(oldFile) === path.dirname(newFile) &&
+    path.basename(oldFile) !== path.basename(newFile)
+  );
+}
+
+function move(oldFile: string, newFile: string, overwrite: boolean): Promise<void> {
+  return fs.move(oldFile, newFile, { overwrite });
+}
+
+function moveWithTrash(oldFile: string, newFile: string): Promise<void> {
+  return trash(newFile).then(() => {
+    return fs.move(oldFile, newFile, { overwrite: false });
+  });
+}
+
+function rename(oldFile: string, newFile: string): Promise<void> {
+  return fs.rename(oldFile, newFile);
+}
+
+function unchanged() {
+  return Promise.resolve();
 }
