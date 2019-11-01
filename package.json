@@ -18,7 +18,7 @@
   },
   "scripts": {
     "dist": "tsc",
-    "lint": "eslint --format=node_modules/eslint-codeframe-formatter --max-warnings=0 './{src,tests}/**/*.ts'",
+    "lint": "eslint --format=node_modules/eslint-codeframe-formatter --max-warnings=0 \"./{src,tests}/**/*.ts\"",
     "prepublishOnly": "npm run validate && npm run dist",
     "start": "tsc -w",
     "test": "jest --watch",
