@@ -9,7 +9,7 @@ import rimraf from 'rimraf';
 import chalk from 'chalk';
 import { EOL } from 'os';
 import { imv } from '../src/index';
-// import { log } from '../src/log';
+import { log } from '../src/log';
 import * as helpers from '../src/helpers';
 // eslint-disable-next-line jest/no-mocks-import
 import * as mockCp from './__mocks__/child_process';
@@ -17,7 +17,7 @@ import * as mockCp from './__mocks__/child_process';
 chalk.enabled = false;
 
 jest.mock('child_process');
-// jest.mock('../src/log');
+jest.mock('../src/log');
 jest.spyOn(trash, 'default');
 
 const mockedCp = (cp as unknown) as typeof mockCp;
@@ -52,8 +52,8 @@ describe('Basic functionality', () => {
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
     expect(fileContents('/foo/fidget2.txt')).toBe('weapon' + EOL);
 
-    // expect(log).toHaveBeenCalledTimes(2);
-    // expect(log).toHaveBeenLastCalledWith('✨ Done!');
+    expect(log).toHaveBeenCalledTimes(2);
+    expect(log).toHaveBeenLastCalledWith('✨ Done!');
   });
 
   it('moves using a glob pattern', async () => {
@@ -70,8 +70,8 @@ describe('Basic functionality', () => {
     expect(fileExists('/foo/myth.doc')).toBeFalsy();
     expect(fileContents('/foo/myth.jpg')).toBe('tram' + EOL);
 
-    // expect(log).toHaveBeenCalledTimes(2);
-    // expect(log).toHaveBeenLastCalledWith('✨ Done!');
+    expect(log).toHaveBeenCalledTimes(2);
+    expect(log).toHaveBeenLastCalledWith('✨ Done!');
   });
 });
 
@@ -85,8 +85,8 @@ describe('Overwrite behaviour', () => {
       false
     );
 
-    // expect(log.error).toHaveBeenCalledTimes(1);
-    // expect(log.error).toHaveBeenCalledWith('Error: file tests/temp/foo/guitar.js already exists.');
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith('Error: file tests/temp/foo/guitar.js already exists.');
   });
 
   // eslint-disable-next-line jest/no-commented-out-tests
@@ -115,10 +115,10 @@ describe('Overwrite behaviour', () => {
       false
     );
 
-    // expect(log.error).toHaveBeenCalledTimes(1);
-    // expect(log.error).toHaveBeenCalledWith(
-    //   'Error: cannot rename tests/temp/foo/guitar.js to tests/temp/foo/dollar.js because the new file is also pending movement.'
-    // );
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith(
+      'Error: cannot rename tests/temp/foo/guitar.js to tests/temp/foo/dollar.js because the new file is also pending movement.'
+    );
   });
 
   it('cannot overwrite non-matching files with overwrite=false', async () => {
@@ -126,8 +126,8 @@ describe('Overwrite behaviour', () => {
 
     await run(files('/foo/fidget.txt'), { editor, overwrite: false }, false);
 
-    // expect(log.error).toHaveBeenCalledTimes(1);
-    // expect(log.error).toHaveBeenCalledWith('Error: file tests/temp/foo/guitar.js already exists.');
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith('Error: file tests/temp/foo/guitar.js already exists.');
   });
 
   it('overwrites non-matching files with overwrite=true', async () => {
@@ -136,7 +136,7 @@ describe('Overwrite behaviour', () => {
     await run(files('/foo/fidget.txt'), { editor, overwrite: true }, true);
 
     expect(trash.default).toHaveBeenCalledTimes(0);
-    // expect(log).toHaveBeenCalledTimes(2);
+    expect(log).toHaveBeenCalledTimes(2);
 
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
     expect(fileContents('/foo/guitar.js')).toBe('weapon' + EOL);
@@ -148,7 +148,7 @@ describe('Overwrite behaviour', () => {
     await run(files('/foo/fidget.txt'), { editor, trash: true }, true);
 
     expect(trash.default).toHaveBeenCalledTimes(1);
-    // expect(log).toHaveBeenCalledTimes(2);
+    expect(log).toHaveBeenCalledTimes(2);
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
     expect(fileContents('/foo/guitar.js')).toBe('weapon' + EOL);
   });
@@ -156,10 +156,10 @@ describe('Overwrite behaviour', () => {
   it('cannot run with both overwrite=true and trash=true', async () => {
     await run(files('/foo/fidget.txt'), { editor, overwrite: true, trash: true }, false);
 
-    // expect(log.error).toHaveBeenCalledTimes(1);
-    // expect(log.error).toHaveBeenCalledWith(
-    //   'Please use either `overwrite` or `trash` options, but not both at the same time.'
-    // );
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith(
+      'Please use either `overwrite` or `trash` options, but not both at the same time.'
+    );
   });
 });
 
@@ -169,7 +169,7 @@ describe('Cleanup behaviour', () => {
 
     await run(files('/bar/opera.doc'), { editor, cleanup: true }, true);
 
-    // expect(log).toHaveBeenCalledTimes(2);
+    expect(log).toHaveBeenCalledTimes(2);
     expect(fileExists('/bar')).toBeFalsy();
     expect(fileContents('/new_folder/opera.doc')).toBe('pump' + EOL);
   });
@@ -179,7 +179,7 @@ describe('Cleanup behaviour', () => {
 
     await run(files('/bar/opera.doc'), { editor, cleanup: false }, true);
 
-    // expect(log).toHaveBeenCalledTimes(2);
+    expect(log).toHaveBeenCalledTimes(2);
     expect(fileExists('/bar')).toBeTruthy();
     expect(fileExists('/bar/opera.doc')).toBeFalsy();
     expect(fileContents('/new_folder/opera.doc')).toBe('pump' + EOL);
@@ -190,17 +190,17 @@ describe('Erroneous input', () => {
   it('cannot run without input', async () => {
     await run([''], { editor }, true);
 
-    // expect(log.warn).toHaveBeenCalledTimes(1);
-    // expect(log.warn).toHaveBeenCalledWith('No files found matching "". Aborting.');
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.warn).toHaveBeenCalledWith('No files found matching "". Aborting.');
   });
 
   it('cannot run without a matching glob pattern', async () => {
     await run(files('/**/*.psd'), { editor }, true);
 
-    // expect(log.warn).toHaveBeenCalledTimes(1);
-    // expect(log.warn).toHaveBeenCalledWith(
-    //   'No files found matching "tests/temp/**/*.psd". Aborting.'
-    // );
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.warn).toHaveBeenCalledWith(
+      'No files found matching "tests/temp/**/*.psd". Aborting.'
+    );
   });
 
   it('cannot run with existing files outside the cwd', async () => {
@@ -208,10 +208,10 @@ describe('Erroneous input', () => {
 
     await run(['tests/fixtures/flag.doc', 'tests/imv/foo/fidget.txt'], { editor }, false);
 
-    // expect(log.error).toHaveBeenCalledTimes(1);
-    // expect(log.error).toHaveBeenCalledWith(
-    //   'Error: existing file tests/fixtures/flag.doc must be a child of the working directory. Please start imv in the directory you want to use it.'
-    // );
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith(
+      'Error: existing file tests/fixtures/flag.doc must be a child of the working directory. Please start imv in the directory you want to use it.'
+    );
   });
 
   it('cannot run with changed files outside the cwd', async () => {
@@ -219,10 +219,10 @@ describe('Erroneous input', () => {
 
     await run([file('/flag.doc')], { editor }, false);
 
-    // expect(log.error).toHaveBeenCalledTimes(1);
-    // expect(log.error).toHaveBeenCalledWith(
-    //   'Error: new file tests/fixtures/flag.doc must be a child of the working directory. Please start imv in the directory you want to use it.'
-    // );
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith(
+      'Error: new file tests/fixtures/flag.doc must be a child of the working directory. Please start imv in the directory you want to use it.'
+    );
   });
 });
 
