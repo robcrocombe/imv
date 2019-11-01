@@ -50,7 +50,7 @@ describe.only('Basic functionality', () => {
     await run(files('/foo/fidget.txt'), { editor }, true);
 
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
-    expect(fileContents('/foo/fidget2.txt')).toBe('weapon\n');
+    expect(fileContents('/foo/fidget2.txt')).toBe('weapon' + EOL);
 
     // expect(log).toHaveBeenCalledTimes(2);
     // expect(log).toHaveBeenLastCalledWith('✨ Done!');
@@ -62,13 +62,13 @@ describe.only('Basic functionality', () => {
     await run(files('/**/*.doc'), { editor }, true);
 
     expect(fileExists('/flag.doc')).toBeFalsy();
-    expect(fileContents('/flag2.doc')).toBe('island\n');
+    expect(fileContents('/flag2.doc')).toBe('island' + EOL);
 
     expect(fileExists('/bar/opera.doc')).toBeFalsy();
-    expect(fileContents('/bar2/opera.doc')).toBe('pump\n');
+    expect(fileContents('/bar2/opera.doc')).toBe('pump' + EOL);
 
     expect(fileExists('/foo/myth.doc')).toBeFalsy();
-    expect(fileContents('/foo/myth.jpg')).toBe('tram\n');
+    expect(fileContents('/foo/myth.jpg')).toBe('tram' + EOL);
 
     // expect(log).toHaveBeenCalledTimes(2);
     // expect(log).toHaveBeenLastCalledWith('✨ Done!');
@@ -139,7 +139,7 @@ describe('Overwrite behaviour', () => {
     // expect(log).toHaveBeenCalledTimes(2);
 
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
-    expect(fileContents('/foo/guitar.js')).toBe('weapon\n');
+    expect(fileContents('/foo/guitar.js')).toBe('weapon' + EOL);
   });
 
   it('sends non-matching files to the recycle bin with trash=true', async () => {
@@ -150,7 +150,7 @@ describe('Overwrite behaviour', () => {
     expect(trash.default).toHaveBeenCalledTimes(1);
     // expect(log).toHaveBeenCalledTimes(2);
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
-    expect(fileContents('/foo/guitar.js')).toBe('weapon\n');
+    expect(fileContents('/foo/guitar.js')).toBe('weapon' + EOL);
   });
 
   it('cannot run with both overwrite=true and trash=true', async () => {
@@ -171,7 +171,7 @@ describe('Cleanup behaviour', () => {
 
     // expect(log).toHaveBeenCalledTimes(2);
     expect(fileExists('/bar')).toBeFalsy();
-    expect(fileContents('/new_folder/opera.doc')).toBe('pump\n');
+    expect(fileContents('/new_folder/opera.doc')).toBe('pump' + EOL);
   });
 
   it('keeps empty directories with cleanup=false', async () => {
@@ -182,7 +182,7 @@ describe('Cleanup behaviour', () => {
     // expect(log).toHaveBeenCalledTimes(2);
     expect(fileExists('/bar')).toBeTruthy();
     expect(fileExists('/bar/opera.doc')).toBeFalsy();
-    expect(fileContents('/new_folder/opera.doc')).toBe('pump\n');
+    expect(fileContents('/new_folder/opera.doc')).toBe('pump' + EOL);
   });
 });
 
