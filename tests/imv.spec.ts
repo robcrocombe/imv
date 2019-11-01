@@ -37,8 +37,6 @@ beforeEach(() => {
   mockedCp.__setEdits(undefined);
   fs.copySync('./tests/fixtures', tempDir);
   jest.clearAllMocks();
-
-  console.log(fs.readdirSync(tempDir));
 });
 
 afterEach(cb => {

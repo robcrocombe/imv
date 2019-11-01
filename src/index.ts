@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as tmp from 'tmp';
+import normalizePath from 'normalize-path';
 import chalk from 'chalk';
 import deleteEmpty from 'delete-empty';
 import globby from 'globby';
@@ -33,7 +34,7 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     return Promise.reject({ success: false });
   }
 
-  const sanitisedInput = input && input.filter(Boolean);
+  const sanitisedInput = input && input.filter(Boolean).map(p => normalizePath(p));
   const oldFiles: string[] =
     sanitisedInput.length > 1 ? sanitisedInput : globby.sync(sanitisedInput, { dot: true });
 
