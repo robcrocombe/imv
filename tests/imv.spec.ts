@@ -30,6 +30,7 @@ const tempDir = './tests/temp';
 helpers.__SET_TEST_PARENT_PATH(path.resolve(tempDir));
 
 beforeAll(() => {
+  console.log('beforeAll');
   mockedCp.__setEditor(editor);
 });
 
@@ -43,9 +44,11 @@ afterEach(cb => {
   rimraf(tempDir, cb);
 });
 
-describe('Basic functionality', () => {
+describe.only('Basic functionality', () => {
   it('moves a single file', async () => {
     setEdits('/foo/fidget2.txt');
+
+    console.log('it moves 1');
 
     await run(files('/foo/fidget.txt'), { editor }, true);
 
