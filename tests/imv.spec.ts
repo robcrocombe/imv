@@ -75,8 +75,8 @@ describe('Basic functionality', () => {
   });
 });
 
-describe('Overwrite behaviour', () => {
-  it('cannot overwrite matching files with overwrite=false', async () => {
+describe.only('Overwrite behaviour', () => {
+  it.only('cannot overwrite matching files with overwrite=false', async () => {
     setEdits('/foo/brand_new.js', '/foo/skate.js', '/foo/guitar.js');
 
     await run(
@@ -106,7 +106,7 @@ describe('Overwrite behaviour', () => {
   //     'Error: file tests/temp/Bar/opera.doc already exists.\n');
   // });
 
-  it('cannot overwrite matching files with overwrite=true', async () => {
+  it.only('cannot overwrite matching files with overwrite=true', async () => {
     setEdits('/foo/dollar.js', '/foo/skate.js', '/foo/brand_new.js');
 
     await run(
@@ -191,16 +191,14 @@ describe('Erroneous input', () => {
     await run([''], { editor }, true);
 
     expect(log.warn).toHaveBeenCalledTimes(1);
-    expect(log.warn).toHaveBeenCalledWith('No files found matching "". Aborting.');
+    expect(log.warn).toHaveBeenCalledWith('No files found matching your input. Aborting.');
   });
 
   it('cannot run without a matching glob pattern', async () => {
     await run(files('/**/*.psd'), { editor }, true);
 
     expect(log.warn).toHaveBeenCalledTimes(1);
-    expect(log.warn).toHaveBeenCalledWith(
-      'No files found matching "tests/temp/**/*.psd". Aborting.'
-    );
+    expect(log.warn).toHaveBeenCalledWith('No files found matching your input. Aborting.');
   });
 
   it('cannot run with existing files outside the cwd', async () => {

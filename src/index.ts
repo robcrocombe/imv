@@ -2,7 +2,6 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import normalizePath from 'normalize-path';
-import chalk from 'chalk';
 import deleteEmpty from 'delete-empty';
 import globby from 'globby';
 import { EOL } from 'os';
@@ -39,7 +38,7 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     sanitisedInput.length > 1 ? sanitisedInput : globby.sync(sanitisedInput, { dot: true });
 
   if (!oldFiles || !oldFiles.length) {
-    log.warn(`No files found matching "${chalk.white(input.join(', '))}". Aborting.`);
+    log.warn(`No files found matching your input. Aborting.`);
     return { success: true };
   }
 

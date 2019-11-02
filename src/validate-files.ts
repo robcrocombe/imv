@@ -45,6 +45,8 @@ export async function validateFiles(
     const newFile = newFiles[i];
     let fileRenamed = false;
 
+    console.log(i, okToOverwrite ? 'true' : 'false', oldFile, newFile, fs.existsSync(newFile));
+
     if (!fs.existsSync(oldFile)) {
       log.error(`Error: cannot read/write ${logFile(oldFile)}.`);
       return Promise.reject({ success: false });
