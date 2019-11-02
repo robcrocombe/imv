@@ -52,7 +52,7 @@ afterEach(cb => {
   rimraf(tempDir, cb);
 });
 
-describe('Basic functionality', () => {
+describe.only('Basic functionality', () => {
   it('moves a single file', async () => {
     setEdits('/foo/fidget2.txt');
 
