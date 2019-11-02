@@ -75,8 +75,8 @@ describe('Basic functionality', () => {
   });
 });
 
-describe.only('Overwrite behaviour', () => {
-  it.only('cannot overwrite matching files with overwrite=false', async () => {
+describe('Overwrite behaviour', () => {
+  it('cannot overwrite matching files with overwrite=false', async () => {
     setEdits('/foo/brand_new.js', '/foo/skate.js', '/foo/guitar.js');
 
     await run(
@@ -106,7 +106,7 @@ describe.only('Overwrite behaviour', () => {
   //     'Error: file tests/temp/Bar/opera.doc already exists.\n');
   // });
 
-  it.only('cannot overwrite matching files with overwrite=true', async () => {
+  it('cannot overwrite matching files with overwrite=true', async () => {
     setEdits('/foo/dollar.js', '/foo/skate.js', '/foo/brand_new.js');
 
     await run(
