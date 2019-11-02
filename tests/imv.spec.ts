@@ -1,5 +1,10 @@
 /// <reference path="../src/types.d.ts" />
 
+process.on('uncaughtException', function(err) {
+  console.log(err.stack);
+  throw err;
+});
+
 import 'jest';
 import * as fs from 'fs-extra';
 import * as cp from 'child_process';

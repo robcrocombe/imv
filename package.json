@@ -22,7 +22,7 @@
     "prepublishOnly": "npm run validate && npm run dist",
     "start": "tsc -w",
     "test": "jest --watch",
-    "test-once": "node --inspect node_modules/.bin/jest --runInBand",
+    "test-once": "jest --runInBand --debug",
     "validate": "npm run lint && npm run test-once"
   },
   "dependencies": {
