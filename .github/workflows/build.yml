@@ -1,22 +1,24 @@
-name: ubuntu
+name: build
 
 on: [push]
 
 jobs:
   build:
+    name: Build ${{ matrix.os }}
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        node-version: [10.x]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Checkout branch
+      uses: actions/checkout@v1
+    - name: Use Node.js 10.x
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 10.x
     - name: npm install, lint and test
       run: |
         npm ci
