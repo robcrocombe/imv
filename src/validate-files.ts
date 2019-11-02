@@ -3,7 +3,7 @@ import * as path from 'path';
 import normalizePath from 'normalize-path';
 import trash from 'trash';
 import chalk from 'chalk';
-import { log } from './log';
+import * as log from './log';
 import { notChildPath } from './helpers';
 
 /*
