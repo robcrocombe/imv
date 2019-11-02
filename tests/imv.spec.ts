@@ -201,6 +201,17 @@ describe('Erroneous input', () => {
     expect(log.warn).toHaveBeenCalledWith('No files found matching your input. Aborting.');
   });
 
+  it('cannot run without a file destination', async () => {
+    mockedCp.__setEdits('');
+
+    await run(files('/flag.doc'), { editor }, false);
+
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith(
+      'Error: you must provide a destination for file on line 1.'
+    );
+  });
+
   it('cannot run with existing files outside the cwd', async () => {
     setEdits('/foo/new1.js', '/foo/new2.js');
 

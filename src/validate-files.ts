@@ -42,7 +42,7 @@ export async function validateFiles(
   // TODO: check every file and show all errors like moveFiles()
   for (let i = 0; i < newFiles.length; ++i) {
     if (typeof newFiles[i] !== 'string' || !newFiles[i].trim()) {
-      log.error(`Error: you must provide a destination for file on line ${i}.`);
+      log.error(`Error: you must provide a destination for file on line ${i + 1}.`);
       return Promise.reject({ success: false });
     }
 
