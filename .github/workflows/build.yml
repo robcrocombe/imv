@@ -1,9 +1,6 @@
-name: build
+name: ubuntu
 
-on:
-  push:
-    branches:
-    - master
+on: [push]
 
 jobs:
   build:
