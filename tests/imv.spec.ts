@@ -17,12 +17,15 @@ import * as mockCp from './__mocks__/child_process';
 chalk.enabled = false;
 
 jest.mock('child_process');
+jest.spyOn(trash, 'default');
+
+// Use `mock` to hide imv logs
+// Use `spyOn` to view imv logs
 jest.mock('../src/log');
 // jest.spyOn(log, 'info');
 // jest.spyOn(log, 'warn');
 // jest.spyOn(log, 'error');
 // jest.spyOn(log, 'printProgress').mockImplementation();
-jest.spyOn(trash, 'default');
 
 const mockedCp = (cp as unknown) as typeof mockCp;
 const editor = 'subl';
@@ -205,7 +208,7 @@ describe('Erroneous input', () => {
     expect(log.warn).toHaveBeenCalledWith('No files found matching your input. Aborting.');
   });
 
-  it.skip('cannot run without a file destination', async () => {
+  it('cannot run without a file destination', async () => {
     mockedCp.__setEdits('');
 
     await run(files('/flag.doc'), { editor }, false);
