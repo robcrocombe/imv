@@ -1,14 +1,14 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as tmp from 'tmp';
-import chalk from 'chalk';
+import normalizePath from 'normalize-path';
 import deleteEmpty from 'delete-empty';
 import globby from 'globby';
 import { EOL } from 'os';
 import { execSync } from 'child_process';
 import { findCommonParentDir } from './helpers';
 import { getGitEditor } from './git-editor';
-import { log, printProgress } from './log';
+import * as log from './log';
 import { validateFiles } from './validate-files';
 
 export async function imv(input: string[], args: Options): Promise<RunResult> {
@@ -33,12 +33,12 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     return Promise.reject({ success: false });
   }
 
-  const sanitisedInput = input && input.filter(Boolean);
+  const sanitisedInput = input && input.filter(Boolean).map(p => normalizePath(p));
   const oldFiles: string[] =
     sanitisedInput.length > 1 ? sanitisedInput : globby.sync(sanitisedInput, { dot: true });
 
   if (!oldFiles || !oldFiles.length) {
-    log.warn(`No files found matching "${chalk.white(input.join(', '))}". Aborting.`);
+    log.warn(`No files found matching your input. Aborting.`);
     return { success: true };
   }
 
@@ -60,7 +60,7 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
       }
     })
     .then(() => {
-      log('✨ Done!');
+      log.info('✨ Done!');
       return { success: true };
     });
 }
@@ -90,7 +90,7 @@ async function promptForNewFiles(
 async function moveFiles(fileMoves: FileMove[]): Promise<RunResult> {
   const movePromises: Promise<MoveResult>[] = [];
   let progress = 0;
-  printProgress(progress, fileMoves.length);
+  log.printProgress(progress, fileMoves.length);
 
   for (let i = 0; i < fileMoves.length; ++i) {
     const move = fileMoves[i];
@@ -98,7 +98,7 @@ async function moveFiles(fileMoves: FileMove[]): Promise<RunResult> {
     const p = move()
       .then(() => {
         progress++;
-        printProgress(progress, fileMoves.length);
+        log.printProgress(progress, fileMoves.length);
         return { success: true };
       })
       .catch(err => {
@@ -111,7 +111,7 @@ async function moveFiles(fileMoves: FileMove[]): Promise<RunResult> {
 
   return Promise.all(movePromises).then(res => {
     // Newline between progress and next message
-    log('');
+    log.info('');
 
     const errors = res.filter(r => r.error).map(e => e.error);
 

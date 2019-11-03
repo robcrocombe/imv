@@ -9,7 +9,7 @@ import rimraf from 'rimraf';
 import chalk from 'chalk';
 import { EOL } from 'os';
 import { imv } from '../src/index';
-import { log } from '../src/log';
+import * as log from '../src/log';
 import * as helpers from '../src/helpers';
 // eslint-disable-next-line jest/no-mocks-import
 import * as mockCp from './__mocks__/child_process';
@@ -17,8 +17,15 @@ import * as mockCp from './__mocks__/child_process';
 chalk.enabled = false;
 
 jest.mock('child_process');
-jest.mock('../src/log');
 jest.spyOn(trash, 'default');
+
+// Use `mock` to hide imv logs
+// Use `spyOn` to view imv logs
+jest.mock('../src/log');
+// jest.spyOn(log, 'info');
+// jest.spyOn(log, 'warn');
+// jest.spyOn(log, 'error');
+// jest.spyOn(log, 'printProgress').mockImplementation();
 
 const mockedCp = (cp as unknown) as typeof mockCp;
 const editor = 'subl';
@@ -50,10 +57,10 @@ describe('Basic functionality', () => {
     await run(files('/foo/fidget.txt'), { editor }, true);
 
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
-    expect(fileContents('/foo/fidget2.txt')).toBe('weapon\n');
+    expect(fileContents('/foo/fidget2.txt')).toBe('weapon' + EOL);
 
-    expect(log).toHaveBeenCalledTimes(2);
-    expect(log).toHaveBeenLastCalledWith('✨ Done!');
+    expect(log.info).toHaveBeenCalledTimes(2);
+    expect(log.info).toHaveBeenLastCalledWith('✨ Done!');
   });
 
   it('moves using a glob pattern', async () => {
@@ -62,16 +69,16 @@ describe('Basic functionality', () => {
     await run(files('/**/*.doc'), { editor }, true);
 
     expect(fileExists('/flag.doc')).toBeFalsy();
-    expect(fileContents('/flag2.doc')).toBe('island\n');
+    expect(fileContents('/flag2.doc')).toBe('island' + EOL);
 
     expect(fileExists('/bar/opera.doc')).toBeFalsy();
-    expect(fileContents('/bar2/opera.doc')).toBe('pump\n');
+    expect(fileContents('/bar2/opera.doc')).toBe('pump' + EOL);
 
     expect(fileExists('/foo/myth.doc')).toBeFalsy();
-    expect(fileContents('/foo/myth.jpg')).toBe('tram\n');
+    expect(fileContents('/foo/myth.jpg')).toBe('tram' + EOL);
 
-    expect(log).toHaveBeenCalledTimes(2);
-    expect(log).toHaveBeenLastCalledWith('✨ Done!');
+    expect(log.info).toHaveBeenCalledTimes(2);
+    expect(log.info).toHaveBeenLastCalledWith('✨ Done!');
   });
 });
 
@@ -136,10 +143,10 @@ describe('Overwrite behaviour', () => {
     await run(files('/foo/fidget.txt'), { editor, overwrite: true }, true);
 
     expect(trash.default).toHaveBeenCalledTimes(0);
-    expect(log).toHaveBeenCalledTimes(2);
+    expect(log.info).toHaveBeenCalledTimes(2);
 
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
-    expect(fileContents('/foo/guitar.js')).toBe('weapon\n');
+    expect(fileContents('/foo/guitar.js')).toBe('weapon' + EOL);
   });
 
   it('sends non-matching files to the recycle bin with trash=true', async () => {
@@ -148,9 +155,9 @@ describe('Overwrite behaviour', () => {
     await run(files('/foo/fidget.txt'), { editor, trash: true }, true);
 
     expect(trash.default).toHaveBeenCalledTimes(1);
-    expect(log).toHaveBeenCalledTimes(2);
+    expect(log.info).toHaveBeenCalledTimes(2);
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
-    expect(fileContents('/foo/guitar.js')).toBe('weapon\n');
+    expect(fileContents('/foo/guitar.js')).toBe('weapon' + EOL);
   });
 
   it('cannot run with both overwrite=true and trash=true', async () => {
@@ -169,9 +176,9 @@ describe('Cleanup behaviour', () => {
 
     await run(files('/bar/opera.doc'), { editor, cleanup: true }, true);
 
-    expect(log).toHaveBeenCalledTimes(2);
+    expect(log.info).toHaveBeenCalledTimes(2);
     expect(fileExists('/bar')).toBeFalsy();
-    expect(fileContents('/new_folder/opera.doc')).toBe('pump\n');
+    expect(fileContents('/new_folder/opera.doc')).toBe('pump' + EOL);
   });
 
   it('keeps empty directories with cleanup=false', async () => {
@@ -179,10 +186,10 @@ describe('Cleanup behaviour', () => {
 
     await run(files('/bar/opera.doc'), { editor, cleanup: false }, true);
 
-    expect(log).toHaveBeenCalledTimes(2);
+    expect(log.info).toHaveBeenCalledTimes(2);
     expect(fileExists('/bar')).toBeTruthy();
     expect(fileExists('/bar/opera.doc')).toBeFalsy();
-    expect(fileContents('/new_folder/opera.doc')).toBe('pump\n');
+    expect(fileContents('/new_folder/opera.doc')).toBe('pump' + EOL);
   });
 });
 
@@ -191,15 +198,24 @@ describe('Erroneous input', () => {
     await run([''], { editor }, true);
 
     expect(log.warn).toHaveBeenCalledTimes(1);
-    expect(log.warn).toHaveBeenCalledWith('No files found matching "". Aborting.');
+    expect(log.warn).toHaveBeenCalledWith('No files found matching your input. Aborting.');
   });
 
   it('cannot run without a matching glob pattern', async () => {
     await run(files('/**/*.psd'), { editor }, true);
 
     expect(log.warn).toHaveBeenCalledTimes(1);
-    expect(log.warn).toHaveBeenCalledWith(
-      'No files found matching "tests/temp/**/*.psd". Aborting.'
+    expect(log.warn).toHaveBeenCalledWith('No files found matching your input. Aborting.');
+  });
+
+  it('cannot run without a file destination', async () => {
+    mockedCp.__setEdits('');
+
+    await run(files('/flag.doc'), { editor }, false);
+
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith(
+      'Error: you must provide a destination for file on line 1.'
     );
   });
 

@@ -2,7 +2,7 @@
 
 import program from 'commander';
 import { imv } from './index';
-import { log } from './log';
+import * as log from './log';
 
 program
   .description('imv -- interactive move files')

@@ -1,8 +1,9 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import normalizePath from 'normalize-path';
 import trash from 'trash';
 import chalk from 'chalk';
-import { log } from './log';
+import * as log from './log';
 import { notChildPath } from './helpers';
 
 /*
@@ -40,18 +41,23 @@ export async function validateFiles(
 
   // TODO: check every file and show all errors like moveFiles()
   for (let i = 0; i < newFiles.length; ++i) {
+    if (typeof newFiles[i] !== 'string' || !newFiles[i].trim()) {
+      log.error(`Error: you must provide a destination for file on line ${i + 1}.`);
+      return Promise.reject({ success: false });
+    }
+
     const oldFile = oldFiles[i];
-    const newFile = newFiles[i];
+    const newFile = normalizePath(path.normalize(newFiles[i]));
     let fileRenamed = false;
 
     if (!fs.existsSync(oldFile)) {
-      log.error(`Error: cannot read/write ${chalk.white(oldFile)}.`);
+      log.error(`Error: cannot read/write ${logFile(oldFile)}.`);
       return Promise.reject({ success: false });
     }
 
     if (notChildPath(oldFile)) {
       log.error(
-        `Error: existing file ${chalk.white(oldFile)} must be a child of the working directory. ` +
+        `Error: existing file ${logFile(oldFile)} must be a child of the working directory. ` +
           'Please start imv in the directory you want to use it.'
       );
       return Promise.reject({ success: false });
@@ -59,7 +65,7 @@ export async function validateFiles(
 
     if (notChildPath(newFile)) {
       log.error(
-        `Error: new file ${chalk.white(newFile)} must be a child of the working directory. ` +
+        `Error: new file ${logFile(newFile)} must be a child of the working directory. ` +
           'Please start imv in the directory you want to use it.'
       );
       return Promise.reject({ success: false });
@@ -67,7 +73,7 @@ export async function validateFiles(
 
     // File exists error
     if (oldFile !== newFile && !okToOverwrite && fs.existsSync(newFile)) {
-      log.error(`Error: file ${chalk.white(newFile)} already exists.`);
+      log.error(`Error: file ${logFile(newFile)} already exists.`);
       return Promise.reject({ success: false });
     }
 
@@ -77,9 +83,7 @@ export async function validateFiles(
         fileRenamed = true;
       } else {
         log.error(
-          `Error: cannot overwrite ${chalk.white(
-            newFile
-          )} with the same file in a different case. ` +
+          `Error: cannot overwrite ${logFile(newFile)} with the same file in a different case. ` +
             'Please use the `overwrite` flag to perform this action.'
         );
         return Promise.reject({ success: false });
@@ -89,15 +93,13 @@ export async function validateFiles(
     if (fileSeen[newFile]) {
       const lineA = chalk.white((fileSeen[newFile].line + 1).toString());
       const lineB = chalk.white((i + 1).toString());
-      log.error(
-        `Error: file ${chalk.white(newFile)} declared twice on line ${lineA} and ${lineB}.`
-      );
+      log.error(`Error: file ${logFile(newFile)} declared twice on line ${lineA} and ${lineB}.`);
       return Promise.reject({ success: false });
     }
 
     if (oldFile !== newFile && existingFiles[newFile]) {
-      const oldFmtd = chalk.white(oldFile);
-      const newFmtd = chalk.white(newFile);
+      const oldFmtd = logFile(oldFile);
+      const newFmtd = logFile(newFile);
       log.error(
         `Error: cannot rename ${oldFmtd} to ${newFmtd} because the new file is also pending movement.`
       );
@@ -126,6 +128,10 @@ function isRename(oldFile: string, newFile: string): boolean {
     path.dirname(oldFile) === path.dirname(newFile) &&
     path.basename(oldFile) !== path.basename(newFile)
   );
+}
+
+function logFile(file: string): string {
+  return file && chalk.white(normalizePath(file));
 }
 
 function move(oldFile: string, newFile: string, overwrite: boolean): Promise<void> {
