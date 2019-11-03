@@ -238,6 +238,15 @@ if (process.platform === 'linux') {
         true
       );
 
+      expect(fileExists('/flag.doc')).toBeFalsy();
+      expect(fileContents('/Flag.doc')).toBe('island' + EOL);
+
+      expect(fileExists('/foo/dollar.js')).toBeFalsy();
+      expect(fileContents('/foo/dollar.JS')).toBe('oven' + EOL);
+
+      expect(fileExists('/bar/opera.doc')).toBeFalsy();
+      expect(fileContents('/Bar/opera.doc')).toBe('pump' + EOL);
+
       expect(log.info).toHaveBeenCalledTimes(2);
       expect(log.info).toHaveBeenLastCalledWith('✨ Done!');
     });
