@@ -1,10 +1,5 @@
 /// <reference path="../src/types.d.ts" />
 
-process.on('uncaughtException', function(err) {
-  console.log(err.stack);
-  throw err;
-});
-
 import 'jest';
 import * as fs from 'fs-extra';
 import * as cp from 'child_process';
@@ -22,11 +17,11 @@ import * as mockCp from './__mocks__/child_process';
 chalk.enabled = false;
 
 jest.mock('child_process');
-// jest.mock('../src/log');
-jest.spyOn(log, 'info');
-jest.spyOn(log, 'warn');
-jest.spyOn(log, 'error');
-jest.spyOn(log, 'printProgress').mockImplementation();
+jest.mock('../src/log');
+// jest.spyOn(log, 'info');
+// jest.spyOn(log, 'warn');
+// jest.spyOn(log, 'error');
+// jest.spyOn(log, 'printProgress').mockImplementation();
 jest.spyOn(trash, 'default');
 
 const mockedCp = (cp as unknown) as typeof mockCp;
@@ -52,7 +47,7 @@ afterEach(cb => {
   rimraf(tempDir, cb);
 });
 
-describe.only('Basic functionality', () => {
+describe('Basic functionality', () => {
   it('moves a single file', async () => {
     setEdits('/foo/fidget2.txt');
 
