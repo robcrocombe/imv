@@ -96,23 +96,6 @@ describe('Overwrite behaviour', () => {
     expect(log.error).toHaveBeenCalledWith('Error: file tests/temp/foo/guitar.js already exists.');
   });
 
-  it('cannot overwrite the same file with a different letter case', async () => {
-    setEdits('/Flag.doc', '/foo/dollar.JS', '/Bar/opera.doc');
-
-    await run(
-      files('/flag.doc', '/foo/dollar.js', '/bar/opera.doc'),
-      { editor, overwrite: false },
-      false
-    );
-
-    expect(log.error).toHaveBeenCalledTimes(1);
-    expect(log.error).toHaveBeenCalledWith(
-      `Error: file tests/temp/Flag.doc already exists.${EOL}` +
-        `Error: file tests/temp/foo/dollar.JS already exists.${EOL}` +
-        'Error: file tests/temp/Bar/opera.doc already exists.'
-    );
-  });
-
   it('cannot overwrite matching files with overwrite=true', async () => {
     setEdits('/foo/dollar.js', '/foo/skate.js', '/foo/brand_new.js');
 
@@ -243,6 +226,42 @@ describe('Erroneous input', () => {
     );
   });
 });
+
+if (process.platform === 'linux') {
+  describe('Case-sensitive file system', () => {
+    it('overwrites the same file with a different letter case', async () => {
+      setEdits('/Flag.doc', '/foo/dollar.JS', '/Bar/opera.doc');
+
+      await run(
+        files('/flag.doc', '/foo/dollar.js', '/bar/opera.doc'),
+        { editor, overwrite: false },
+        true
+      );
+
+      expect(log.info).toHaveBeenCalledTimes(2);
+      expect(log.info).toHaveBeenLastCalledWith('✨ Done!');
+    });
+  });
+} else {
+  describe('Case-insensitive file system', () => {
+    it('cannot overwrite the same file with a different letter case', async () => {
+      setEdits('/Flag.doc', '/foo/dollar.JS', '/Bar/opera.doc');
+
+      await run(
+        files('/flag.doc', '/foo/dollar.js', '/bar/opera.doc'),
+        { editor, overwrite: false },
+        false
+      );
+
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledWith(
+        `Error: file tests/temp/Flag.doc already exists.${EOL}` +
+          `Error: file tests/temp/foo/dollar.JS already exists.${EOL}` +
+          'Error: file tests/temp/Bar/opera.doc already exists.'
+      );
+    });
+  });
+}
 
 function file(p: string): string {
   return path.join(tempDir, p);
