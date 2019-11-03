@@ -1,8 +1,9 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import chalk from 'chalk';
 import normalizePath from 'normalize-path';
 import trash from 'trash';
-import chalk from 'chalk';
+import { EOL } from 'os';
 import * as log from './log';
 import { notChildPath } from './helpers';
 
@@ -38,12 +39,13 @@ export async function validateFiles(
     return map;
   }, {});
   const fileMoves: FileMove[] = [];
+  const errors: string[] = [];
 
   // TODO: check every file and show all errors like moveFiles()
   for (let i = 0; i < newFiles.length; ++i) {
     if (typeof newFiles[i] !== 'string' || !newFiles[i].trim()) {
-      log.error(`Error: you must provide a destination for file on line ${i + 1}.`);
-      return Promise.reject({ success: false });
+      errors.push(`Error: you must provide a destination for file on line ${i + 1}.`);
+      continue;
     }
 
     const oldFile = oldFiles[i];
@@ -51,30 +53,30 @@ export async function validateFiles(
     let fileRenamed = false;
 
     if (!fs.existsSync(oldFile)) {
-      log.error(`Error: cannot read/write ${logFile(oldFile)}.`);
-      return Promise.reject({ success: false });
+      errors.push(`Error: cannot read/write ${logFile(oldFile)}.`);
+      continue;
     }
 
     if (notChildPath(oldFile)) {
-      log.error(
+      errors.push(
         `Error: existing file ${logFile(oldFile)} must be a child of the working directory. ` +
           'Please start imv in the directory you want to use it.'
       );
-      return Promise.reject({ success: false });
+      continue;
     }
 
     if (notChildPath(newFile)) {
-      log.error(
+      errors.push(
         `Error: new file ${logFile(newFile)} must be a child of the working directory. ` +
           'Please start imv in the directory you want to use it.'
       );
-      return Promise.reject({ success: false });
+      continue;
     }
 
     // File exists error
     if (oldFile !== newFile && !okToOverwrite && fs.existsSync(newFile)) {
-      log.error(`Error: file ${logFile(newFile)} already exists.`);
-      return Promise.reject({ success: false });
+      errors.push(`Error: file ${logFile(newFile)} already exists.`);
+      continue;
     }
 
     // Case error
@@ -82,41 +84,48 @@ export async function validateFiles(
       if (opts.overwrite) {
         fileRenamed = true;
       } else {
-        log.error(
+        errors.push(
           `Error: cannot overwrite ${logFile(newFile)} with the same file in a different case. ` +
             'Please use the `overwrite` flag to perform this action.'
         );
-        return Promise.reject({ success: false });
+        continue;
       }
     }
 
     if (fileSeen[newFile]) {
       const lineA = chalk.white((fileSeen[newFile].line + 1).toString());
       const lineB = chalk.white((i + 1).toString());
-      log.error(`Error: file ${logFile(newFile)} declared twice on line ${lineA} and ${lineB}.`);
-      return Promise.reject({ success: false });
+      errors.push(`Error: file ${logFile(newFile)} declared twice on line ${lineA} and ${lineB}.`);
+      continue;
     }
 
     if (oldFile !== newFile && existingFiles[newFile]) {
       const oldFmtd = logFile(oldFile);
       const newFmtd = logFile(newFile);
-      log.error(
+      errors.push(
         `Error: cannot rename ${oldFmtd} to ${newFmtd} because the new file is also pending movement.`
       );
-      return Promise.reject({ success: false });
+      continue;
     }
 
     fileSeen[newFile] = { line: i };
 
-    if (oldFile === newFile) {
-      fileMoves.push(() => unchanged());
-    } else if (fileRenamed) {
-      fileMoves.push(() => rename(oldFile, newFile));
-    } else if (opts.trash) {
-      fileMoves.push(() => moveWithTrash(oldFile, newFile));
-    } else {
-      fileMoves.push(() => move(oldFile, newFile, opts.overwrite));
+    if (!errors.length) {
+      if (oldFile === newFile) {
+        fileMoves.push(() => unchanged());
+      } else if (fileRenamed) {
+        fileMoves.push(() => rename(oldFile, newFile));
+      } else if (opts.trash) {
+        fileMoves.push(() => moveWithTrash(oldFile, newFile));
+      } else {
+        fileMoves.push(() => move(oldFile, newFile, opts.overwrite));
+      }
     }
+  }
+
+  if (errors.length) {
+    log.error(errors.join(EOL));
+    return Promise.reject({ success: false });
   }
 
   return fileMoves;
