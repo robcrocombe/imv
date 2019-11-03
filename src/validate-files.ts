@@ -41,7 +41,6 @@ export async function validateFiles(
   const fileMoves: FileMove[] = [];
   const errors: string[] = [];
 
-  // TODO: check every file and show all errors like moveFiles()
   for (let i = 0; i < newFiles.length; ++i) {
     if (typeof newFiles[i] !== 'string' || !newFiles[i].trim()) {
       errors.push(`Error: you must provide a destination for file on line ${i + 1}.`);

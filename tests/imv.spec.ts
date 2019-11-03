@@ -229,7 +229,7 @@ describe('Erroneous input', () => {
 
 if (process.platform === 'linux') {
   describe('Case-sensitive file system', () => {
-    it('overwrites the same file with a different letter case', async () => {
+    it('moves files that are case-different', async () => {
       setEdits('/Flag.doc', '/foo/dollar.JS', '/Bar/opera.doc');
 
       await run(
@@ -253,7 +253,7 @@ if (process.platform === 'linux') {
   });
 } else {
   describe('Case-insensitive file system', () => {
-    it('cannot overwrite the same file with a different letter case', async () => {
+    it('cannot overwrite case-different files with overwrite=false', async () => {
       setEdits('/Flag.doc', '/foo/dollar.JS', '/Bar/opera.doc');
 
       await run(
@@ -268,6 +268,18 @@ if (process.platform === 'linux') {
           `Error: file tests/temp/foo/dollar.JS already exists.${EOL}` +
           'Error: file tests/temp/Bar/opera.doc already exists.'
       );
+    });
+
+    it('overwrite/rename case-different files with overwrite=true', async () => {
+      setEdits('/Flag.doc', '/foo/dollar.JS');
+
+      await run(files('/flag.doc', '/foo/dollar.js'), { editor, overwrite: true }, true);
+
+      expect(fileContents('/Flag.doc')).toBe('island' + EOL);
+      expect(fileContents('/foo/dollar.JS')).toBe('oven' + EOL);
+
+      expect(log.info).toHaveBeenCalledTimes(2);
+      expect(log.info).toHaveBeenLastCalledWith('✨ Done!');
     });
   });
 }
