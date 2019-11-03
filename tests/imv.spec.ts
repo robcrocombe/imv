@@ -226,7 +226,9 @@ describe('Erroneous input', () => {
 
     expect(log.error).toHaveBeenCalledTimes(1);
     expect(log.error).toHaveBeenCalledWith(
-      'Error: existing file tests/fixtures/flag.doc must be a child of the working directory. Please start imv in the directory you want to use it.'
+      'Error: existing file tests/fixtures/flag.doc must be a child of the working directory. ' +
+        `Please start imv in the directory you want to use it.${EOL}` +
+        'Error: cannot read/write tests/imv/foo/fidget.txt.'
     );
   });
 
