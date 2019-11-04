@@ -46,7 +46,7 @@ export async function validateFiles(
       continue;
     }
 
-    const oldFile = oldFiles[i];
+    const oldFile = normalizePath(path.normalize(oldFiles[i]));
     const newFile = normalizePath(path.normalize(newFiles[i]));
     let fileRenamed = false;
 
@@ -71,12 +71,6 @@ export async function validateFiles(
       continue;
     }
 
-    // File exists error
-    if (oldFile !== newFile && !okToOverwrite && fs.existsSync(newFile)) {
-      errors.push(`Error: file ${logFile(newFile)} already exists.`);
-      continue;
-    }
-
     // Case error
     if (isRename(oldFile, newFile) && fs.existsSync(newFile)) {
       if (opts.overwrite) {
@@ -88,6 +82,12 @@ export async function validateFiles(
         );
         continue;
       }
+    }
+
+    // File exists error
+    if (oldFile !== newFile && !okToOverwrite && fs.existsSync(newFile)) {
+      errors.push(`Error: file ${logFile(newFile)} already exists.`);
+      continue;
     }
 
     if (fileSeen[newFile]) {
