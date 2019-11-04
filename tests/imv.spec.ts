@@ -17,6 +17,7 @@ import * as mockCp from './__mocks__/child_process';
 chalk.enabled = false;
 
 jest.mock('child_process');
+jest.mock('readline');
 jest.spyOn(trash, 'default');
 
 // Use `mock` to hide imv logs
@@ -95,23 +96,6 @@ describe('Overwrite behaviour', () => {
     expect(log.error).toHaveBeenCalledTimes(1);
     expect(log.error).toHaveBeenCalledWith('Error: file tests/temp/foo/guitar.js already exists.');
   });
-
-  // eslint-disable-next-line jest/no-commented-out-tests
-  // it('cannot overwrite the same file with a different letter case', async () => {
-  //   setEdits('/Flag.doc', '/foo/dollar.JS', '/Bar/opera.doc');
-
-  //   await run(
-  //     files('/flag.doc', '/foo/dollar.js', '/bar/opera.doc'),
-  //     { editor, overwrite: false },
-  //     false
-  //   );
-
-  //   expect(log.error).toHaveBeenCalledTimes(1);
-  //   expect(log.error).toHaveBeenCalledWith(
-  //     'Error: file tests/temp/Flag.js already exists.\n' +
-  //     'Error: file tests/temp/foo/dollar.JS already exists.\n' +
-  //     'Error: file tests/temp/Bar/opera.doc already exists.\n');
-  // });
 
   it('cannot overwrite matching files with overwrite=true', async () => {
     setEdits('/foo/dollar.js', '/foo/skate.js', '/foo/brand_new.js');
@@ -226,7 +210,9 @@ describe('Erroneous input', () => {
 
     expect(log.error).toHaveBeenCalledTimes(1);
     expect(log.error).toHaveBeenCalledWith(
-      'Error: existing file tests/fixtures/flag.doc must be a child of the working directory. Please start imv in the directory you want to use it.'
+      'Error: existing file tests/fixtures/flag.doc must be a child of the working directory. ' +
+        `Please start imv in the directory you want to use it.${EOL}` +
+        'Error: cannot read/write tests/imv/foo/fidget.txt.'
     );
   });
 
@@ -241,6 +227,67 @@ describe('Erroneous input', () => {
     );
   });
 });
+
+if (process.platform === 'linux') {
+  describe('Case-sensitive file system', () => {
+    it('moves files that are case-different', async () => {
+      setEdits('/Flag.doc', '/foo/dollar.JS', '/Bar/opera.doc');
+
+      await run(
+        files('/flag.doc', '/foo/dollar.js', '/bar/opera.doc'),
+        { editor, overwrite: false },
+        true
+      );
+
+      expect(fileExists('/flag.doc')).toBeFalsy();
+      expect(fileContents('/Flag.doc')).toBe('island' + EOL);
+
+      expect(fileExists('/foo/dollar.js')).toBeFalsy();
+      expect(fileContents('/foo/dollar.JS')).toBe('oven' + EOL);
+
+      expect(fileExists('/bar/opera.doc')).toBeFalsy();
+      expect(fileContents('/Bar/opera.doc')).toBe('pump' + EOL);
+
+      expect(log.info).toHaveBeenCalledTimes(2);
+      expect(log.info).toHaveBeenLastCalledWith('✨ Done!');
+    });
+  });
+} else {
+  describe('Case-insensitive file system', () => {
+    it('cannot overwrite case-different files with overwrite=false', async () => {
+      setEdits('/Flag.doc', '/foo/dollar.JS', '/Bar/opera.doc');
+
+      await run(
+        files('/flag.doc', '/foo/dollar.js', '/bar/opera.doc'),
+        { editor, overwrite: false },
+        false
+      );
+
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledWith(
+        'Error: cannot overwrite tests/temp/Flag.doc with the same file in a different case. ' +
+          'Please use the `overwrite` flag to perform this action.' +
+          EOL +
+          'Error: cannot overwrite tests/temp/foo/dollar.JS with the same file in a different case. ' +
+          'Please use the `overwrite` flag to perform this action.' +
+          EOL +
+          'Error: file tests/temp/Bar/opera.doc already exists.'
+      );
+    });
+
+    it('overwrite/rename case-different files with overwrite=true', async () => {
+      setEdits('/Flag.doc', '/foo/dollar.JS');
+
+      await run(files('/flag.doc', '/foo/dollar.js'), { editor, overwrite: true }, true);
+
+      expect(fileContents('/Flag.doc')).toBe('island' + EOL);
+      expect(fileContents('/foo/dollar.JS')).toBe('oven' + EOL);
+
+      expect(log.info).toHaveBeenCalledTimes(2);
+      expect(log.info).toHaveBeenLastCalledWith('✨ Done!');
+    });
+  });
+}
 
 function file(p: string): string {
   return path.join(tempDir, p);
