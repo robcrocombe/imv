@@ -9,7 +9,7 @@ program
   .version('1.0.0', '-v, --version', 'output the version number')
   .arguments('<glob>')
   .option('-e, --editor <editor>', 'use this editor to modify your file paths')
-  .option('-o, --overwrite', 'overwrite existing files') // TODO
+  .option('-o, --overwrite', 'overwrite existing files')
   .option('-t, --trash', 'send existing files to the trash bin')
   .option('-c, --cleanup', 'remove empty affected folders after moving files')
   .parse(process.argv);
