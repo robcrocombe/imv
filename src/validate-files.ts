@@ -15,13 +15,11 @@ import { notChildPath } from './helpers';
  * To make it simpler, we're going to require the user to use the `overwrite` flag.
  */
 
-// TODO: add overwrite confirm
-
 export async function validateFiles(
   oldFiles: string[],
   newFiles: string[],
   opts: Options
-): Promise<FileMove[]> {
+): Promise<ValidationResult> {
   if (oldFiles.length !== newFiles.length) {
     const oldLength = chalk.white(oldFiles.length.toString());
     const newLength = chalk.white(newFiles.length.toString());
@@ -39,6 +37,7 @@ export async function validateFiles(
     return map;
   }, {});
   const fileMoves: FileMove[] = [];
+  const overwrites: string[] = [];
   const errors: string[] = [];
 
   for (let i = 0; i < newFiles.length; ++i) {
@@ -110,6 +109,10 @@ export async function validateFiles(
     fileSeen[newFile] = { line: i };
 
     if (!errors.length) {
+      if (opts.overwrite && oldFile !== newFile && !fileRenamed && fs.existsSync(newFile)) {
+        overwrites.push(newFile);
+      }
+
       if (oldFile === newFile) {
         fileMoves.push(() => unchanged());
       } else if (fileRenamed) {
@@ -127,7 +130,7 @@ export async function validateFiles(
     return Promise.reject({ success: false });
   }
 
-  return fileMoves;
+  return { fileMoves, overwrites };
 }
 
 function isRename(oldFile: string, newFile: string): boolean {

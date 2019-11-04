@@ -1,3 +1,5 @@
+type FileMove = () => Promise<void>;
+
 interface Options {
   editor?: string;
   overwrite?: boolean;
@@ -13,8 +15,11 @@ interface MoveResult extends RunResult {
   error?: any;
 }
 
+interface ValidationResult {
+  fileMoves: FileMove[];
+  overwrites: string[];
+}
+
 interface FileStat {
   line: number;
 }
-
-type FileMove = () => Promise<void>;

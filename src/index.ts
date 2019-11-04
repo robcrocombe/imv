@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as tmp from 'tmp';
 import normalizePath from 'normalize-path';
 import deleteEmpty from 'delete-empty';
+import readline from 'readline';
 import globby from 'globby';
 import { EOL } from 'os';
 import { execSync } from 'child_process';
@@ -42,34 +43,32 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     return { success: true };
   }
 
-  const dir = tmp.dirSync({ unsafeCleanup: true });
-  let newFiles: string[];
-
-  return promptForNewFiles(oldFiles, dir, opts)
-    .then(res => {
-      newFiles = res;
-      return validateFiles(oldFiles, newFiles, opts);
-    })
-    .then(fileMoves => {
-      return moveFiles(fileMoves);
-    })
-    .then(() => {
-      if (opts.cleanup) {
-        const allFilePaths = [...oldFiles, ...newFiles];
-        return cleanup(allFilePaths);
-      }
-    })
-    .then(() => {
-      log.info('✨ Done!');
-      return { success: true };
-    });
+  return execute(oldFiles, opts);
 }
 
-async function promptForNewFiles(
-  oldFiles: string[],
-  dir: tmp.DirResult,
-  opts: Options
-): Promise<string[]> {
+async function execute(oldFiles: string[], opts: Options): Promise<RunResult> {
+  const newFiles = await promptForNewFiles(oldFiles, opts);
+
+  const { fileMoves, overwrites } = await validateFiles(oldFiles, newFiles, opts);
+
+  if (overwrites && overwrites.length) {
+    await confirmOverwrite(overwrites);
+  }
+
+  await moveFiles(fileMoves);
+
+  if (opts.cleanup) {
+    const allFilePaths = [...oldFiles, ...newFiles];
+    await cleanup(allFilePaths);
+  }
+
+  log.info('✨ Done!');
+  return { success: true };
+}
+
+async function promptForNewFiles(oldFiles: string[], opts: Options): Promise<string[]> {
+  const dir = tmp.dirSync({ unsafeCleanup: true });
+
   const tmpFile = path.join(dir.name, 'FILES');
   fs.writeFileSync(tmpFile, oldFiles.join(EOL) + EOL, 'utf8');
 
@@ -121,6 +120,35 @@ async function moveFiles(fileMoves: FileMove[]): Promise<RunResult> {
     } else {
       return { success: true };
     }
+  });
+}
+
+async function confirmOverwrite(files: string[]) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  let answer: string;
+
+  log.warn('You are about to overwrite the following files:');
+  log.warn('  ' + files.join(EOL + '  '));
+
+  do {
+    answer = await askUser(rl, 'Are you sure? (y/n)');
+  } while (answer !== 'y' && answer !== 'n');
+
+  rl.close();
+
+  if (answer === 'n') {
+    return Promise.reject({ success: true });
+  }
+}
+
+function askUser(rl: readline.Interface, question: string): Promise<string> {
+  return new Promise(resolve => {
+    rl.question(question + ' ', answer => {
+      resolve(answer.toLowerCase());
+    });
   });
 }
 

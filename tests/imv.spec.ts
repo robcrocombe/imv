@@ -17,6 +17,7 @@ import * as mockCp from './__mocks__/child_process';
 chalk.enabled = false;
 
 jest.mock('child_process');
+jest.mock('readline');
 jest.spyOn(trash, 'default');
 
 // Use `mock` to hide imv logs
