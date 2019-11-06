@@ -69,7 +69,7 @@ async function execute(oldFiles: string[], opts: Options): Promise<RunResult> {
 async function promptForNewFiles(oldFiles: string[], opts: Options): Promise<string[]> {
   const dir = tmp.dirSync({ unsafeCleanup: true });
 
-  const tmpFile = path.join(dir.name, 'FILES');
+  const tmpFile = path.join(dir.name, 'imv-files');
   fs.writeFileSync(tmpFile, oldFiles.join(EOL) + EOL, 'utf8');
 
   // Open files for renaming
