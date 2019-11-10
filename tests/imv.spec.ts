@@ -3,6 +3,7 @@
 import 'jest';
 import * as fs from 'fs-extra';
 import * as cp from 'child_process';
+import * as rl from 'readline';
 import * as path from 'path';
 import * as trash from 'trash';
 import rimraf from 'rimraf';
@@ -11,8 +12,10 @@ import { EOL } from 'os';
 import { imv } from '../src/index';
 import * as log from '../src/log';
 import * as helpers from '../src/helpers';
-// eslint-disable-next-line jest/no-mocks-import
+/* eslint-disable jest/no-mocks-import */
 import * as mockCp from './__mocks__/child_process';
+import * as mockRl from './__mocks__/readline';
+/* eslint-enable jest/no-mocks-import */
 
 chalk.enabled = false;
 
@@ -28,6 +31,7 @@ jest.mock('../src/log');
 // jest.spyOn(log, 'error');
 // jest.spyOn(log, 'printProgress').mockImplementation();
 
+const mockedRl = (rl as unknown) as typeof mockRl;
 const mockedCp = (cp as unknown) as typeof mockCp;
 const editor = 'subl';
 const tempDir = './tests/temp';
@@ -45,6 +49,7 @@ beforeEach(() => {
   mockedCp.__setEdits(undefined);
   fs.copySync('./tests/fixtures', tempDir);
   jest.clearAllMocks();
+  mockedRl.answerNo();
 });
 
 afterEach(cb => {
@@ -86,6 +91,7 @@ describe('Basic functionality', () => {
 describe('Overwrite behaviour', () => {
   it('cannot overwrite matching files with overwrite=false', async () => {
     setEdits('/foo/brand_new.js', '/foo/skate.js', '/foo/guitar.js');
+    mockedRl.answerYes();
 
     await run(
       files('/foo/guitar.js', '/foo/skate.js', '/foo/dollar.js'),
@@ -99,6 +105,7 @@ describe('Overwrite behaviour', () => {
 
   it('cannot overwrite matching files with overwrite=true', async () => {
     setEdits('/foo/dollar.js', '/foo/skate.js', '/foo/brand_new.js');
+    mockedRl.answerYes();
 
     await run(
       files('/foo/guitar.js', '/foo/skate.js', '/foo/dollar.js'),
@@ -114,6 +121,7 @@ describe('Overwrite behaviour', () => {
 
   it('cannot overwrite non-matching files with overwrite=false', async () => {
     setEdits('/foo/guitar.js');
+    mockedRl.answerYes();
 
     await run(files('/foo/fidget.txt'), { editor, overwrite: false }, false);
 
@@ -123,6 +131,7 @@ describe('Overwrite behaviour', () => {
 
   it('overwrites non-matching files with overwrite=true', async () => {
     setEdits('/foo/guitar.js');
+    mockedRl.answerYes();
 
     await run(files('/foo/fidget.txt'), { editor, overwrite: true }, true);
 
@@ -131,6 +140,25 @@ describe('Overwrite behaviour', () => {
 
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
     expect(fileContents('/foo/guitar.js')).toBe('weapon' + EOL);
+  });
+
+  it('aborts overwrite when the user chooses to', async () => {
+    setEdits('/foo/guitar.js');
+    mockedRl.answerNo();
+
+    await expect(
+      imv(files('/foo/fidget.txt'), {
+        editor,
+        overwrite: true,
+      })
+    ).rejects.toStrictEqual({
+      success: true,
+    });
+
+    expect(log.warn).toHaveBeenCalledTimes(2);
+
+    expect(fileContents('/foo/fidget.txt')).toBe('weapon' + EOL);
+    expect(fileContents('/foo/guitar.js')).toBe('lemon' + EOL);
   });
 
   it('sends non-matching files to the recycle bin with trash=true', async () => {
@@ -275,8 +303,9 @@ if (process.platform === 'linux') {
       );
     });
 
-    it('overwrite/rename case-different files with overwrite=true', async () => {
+    it('will overwrite/rename case-different files with overwrite=true', async () => {
       setEdits('/Flag.doc', '/foo/dollar.JS');
+      mockedRl.answerYes();
 
       await run(files('/flag.doc', '/foo/dollar.js'), { editor, overwrite: true }, true);
 
