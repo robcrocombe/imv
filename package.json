@@ -21,8 +21,8 @@
     "lint": "eslint --format=node_modules/eslint-codeframe-formatter --max-warnings=0 \"./{src,tests}/**/*.ts\"",
     "prepublishOnly": "npm run validate && npm run dist",
     "start": "tsc -w",
-    "test": "jest --watch",
-    "test-once": "jest",
+    "test": "jest -i --watch",
+    "test-once": "jest -i",
     "validate": "npm run lint && npm run test-once"
   },
   "dependencies": {
@@ -42,6 +42,7 @@
     "typescript": "3.6.4"
   },
   "devDependencies": {
+    "@jest/test-sequencer": "24.9.0",
     "@types/fs-extra": "8.0.1",
     "@types/jest": "24.0.22",
     "@types/mock-fs": "4.10.0",
@@ -84,7 +85,7 @@
     }
   },
   "lint-staged": {
-    "{src,tests}/**/*.ts": [
+    "{src,tests}/**/*.{js,ts}": [
       "prettier --write",
       "git add"
     ]
@@ -92,9 +93,13 @@
   "jest": {
     "preset": "ts-jest",
     "cacheDirectory": "./node_modules/.cache/jest",
+    "setupFilesAfterEnv": [
+      "./tests/setup.ts"
+    ],
     "watchPathIgnorePatterns": [
       "<rootDir>/tests/temp"
-    ]
+    ],
+    "testSequencer": "./tests/sequencer.js"
   },
   "prettier": {
     "printWidth": 100,
