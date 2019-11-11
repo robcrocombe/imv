@@ -42,16 +42,18 @@ if (process.platform === 'linux') {
         false
       );
 
-      expect(log.error).toHaveBeenCalledTimes(1);
-      expect(log.error).toHaveBeenCalledWith(
+      expect(log.error).toHaveBeenCalledTimes(3);
+      expect(log.error).toHaveBeenNthCalledWith(
+        1,
         'cannot overwrite tests/temp/Flag.doc with the same file in a different case. ' +
-          'Please use the `overwrite` flag to perform this action.' +
-          EOL +
-          'cannot overwrite tests/temp/foo/dollar.JS with the same file in a different case. ' +
-          'Please use the `overwrite` flag to perform this action.' +
-          EOL +
-          'file tests/temp/Bar/opera.doc already exists.'
+          'Please use the `overwrite` flag to perform this action.'
       );
+      expect(log.error).toHaveBeenNthCalledWith(
+        2,
+        'cannot overwrite tests/temp/foo/dollar.JS with the same file in a different case. ' +
+          'Please use the `overwrite` flag to perform this action.'
+      );
+      expect(log.error).toHaveBeenNthCalledWith(3, 'file tests/temp/Bar/opera.doc already exists.');
     });
 
     it('will overwrite/rename case-different files with overwrite=true', async () => {

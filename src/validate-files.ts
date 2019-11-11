@@ -1,9 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import chalk from 'chalk';
 import normalizePath from 'normalize-path';
 import trash from 'trash';
-import { EOL } from 'os';
 import * as log from './log';
 import { notChildPath } from './helpers';
 
@@ -21,8 +19,8 @@ export async function validateFiles(
   opts: Options
 ): Promise<ValidationResult> {
   if (oldFiles.length !== newFiles.length) {
-    const oldLength = chalk.white(oldFiles.length.toString());
-    const newLength = chalk.white(newFiles.length.toString());
+    const oldLength = oldFiles.length.toString();
+    const newLength = newFiles.length.toString();
     log.error(
       'edited file paths do not match the length of the original list.' +
         `\nExpected ${oldLength}, got ${newLength}.`
@@ -91,8 +89,8 @@ export async function validateFiles(
     }
 
     if (fileSeen[newFile]) {
-      const lineA = chalk.white((fileSeen[newFile].line + 1).toString());
-      const lineB = chalk.white((i + 1).toString());
+      const lineA = (fileSeen[newFile].line + 1).toString();
+      const lineB = (i + 1).toString();
       errors.push(`file ${logFile(newFile)} declared twice on line ${lineA} and ${lineB}.`);
       continue;
     }
@@ -126,7 +124,7 @@ export async function validateFiles(
   }
 
   if (errors.length) {
-    log.error(errors.join(EOL));
+    errors.forEach(e => log.error(e));
     return Promise.reject({ success: false });
   }
 
@@ -142,7 +140,7 @@ function isRename(oldFile: string, newFile: string): boolean {
 }
 
 function logFile(file: string): string {
-  return file && chalk.white(normalizePath(file));
+  return file && normalizePath(file);
 }
 
 function move(oldFile: string, newFile: string, overwrite: boolean): Promise<void> {

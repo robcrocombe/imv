@@ -36,12 +36,13 @@ describe('Erroneous input', () => {
 
     await run(['tests/fixtures/flag.doc', 'tests/imv/foo/fidget.txt'], { editor }, false);
 
-    expect(log.error).toHaveBeenCalledTimes(1);
-    expect(log.error).toHaveBeenCalledWith(
+    expect(log.error).toHaveBeenCalledTimes(2);
+    expect(log.error).toHaveBeenNthCalledWith(
+      1,
       'existing file tests/fixtures/flag.doc must be a child of the working directory. ' +
-        `Please start imv in the directory you want to use it.${EOL}` +
-        'cannot read/write tests/imv/foo/fidget.txt.'
+        'Please start imv in the directory you want to use it.'
     );
+    expect(log.error).toHaveBeenNthCalledWith(2, 'cannot read/write tests/imv/foo/fidget.txt.');
   });
 
   it('cannot run with changed files outside the cwd', async () => {
