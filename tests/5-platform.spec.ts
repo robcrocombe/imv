@@ -44,13 +44,13 @@ if (process.platform === 'linux') {
 
       expect(log.error).toHaveBeenCalledTimes(1);
       expect(log.error).toHaveBeenCalledWith(
-        'Error: cannot overwrite tests/temp/Flag.doc with the same file in a different case. ' +
+        'cannot overwrite tests/temp/Flag.doc with the same file in a different case. ' +
           'Please use the `overwrite` flag to perform this action.' +
           EOL +
-          'Error: cannot overwrite tests/temp/foo/dollar.JS with the same file in a different case. ' +
+          'cannot overwrite tests/temp/foo/dollar.JS with the same file in a different case. ' +
           'Please use the `overwrite` flag to perform this action.' +
           EOL +
-          'Error: file tests/temp/Bar/opera.doc already exists.'
+          'file tests/temp/Bar/opera.doc already exists.'
       );
     });
 

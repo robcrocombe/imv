@@ -1,16 +1,19 @@
 import chalk from 'chalk';
 import readline from 'readline';
 
-export function info(...text: string[]) {
-  console.log(...text);
+const errorRegex = /^\s*Error:\s*/;
+
+export function info(text: string) {
+  console.log(text);
 }
 
-export function warn(...text: string[]) {
-  console.log(chalk.yellow(...text));
+export function warn(text: string) {
+  console.log(chalk.yellow(text));
 }
 
-export function error(...text: string[]) {
-  console.log(chalk.red(...text));
+export function error(text: string) {
+  const message = text.replace(errorRegex, '');
+  console.log(chalk.red('Error:'), message);
 }
 
 export function printProgress(current: number, total: number) {

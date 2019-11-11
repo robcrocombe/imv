@@ -21,7 +21,7 @@ describe('Overwrite behaviour', () => {
     );
 
     expect(log.error).toHaveBeenCalledTimes(1);
-    expect(log.error).toHaveBeenCalledWith('Error: file tests/temp/foo/guitar.js already exists.');
+    expect(log.error).toHaveBeenCalledWith('file tests/temp/foo/guitar.js already exists.');
   });
 
   it('cannot overwrite matching files with overwrite=true', async () => {
@@ -36,7 +36,7 @@ describe('Overwrite behaviour', () => {
 
     expect(log.error).toHaveBeenCalledTimes(1);
     expect(log.error).toHaveBeenCalledWith(
-      'Error: cannot rename tests/temp/foo/guitar.js to tests/temp/foo/dollar.js because the new file is also pending movement.'
+      'cannot rename tests/temp/foo/guitar.js to tests/temp/foo/dollar.js because the new file is also pending movement.'
     );
   });
 
@@ -47,7 +47,7 @@ describe('Overwrite behaviour', () => {
     await run(files('/foo/fidget.txt'), { editor, overwrite: false }, false);
 
     expect(log.error).toHaveBeenCalledTimes(1);
-    expect(log.error).toHaveBeenCalledWith('Error: file tests/temp/foo/guitar.js already exists.');
+    expect(log.error).toHaveBeenCalledWith('file tests/temp/foo/guitar.js already exists.');
   });
 
   it('overwrites non-matching files with overwrite=true', async () => {
@@ -57,7 +57,8 @@ describe('Overwrite behaviour', () => {
     await run(files('/foo/fidget.txt'), { editor, overwrite: true }, true);
 
     expect(trash.default).toHaveBeenCalledTimes(0);
-    expect(log.info).toHaveBeenCalledTimes(2);
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.info).toHaveBeenCalledTimes(3);
 
     expect(fileExists('/foo/fidget.txt')).toBeFalsy();
     expect(fileContents('/foo/guitar.js')).toBe('weapon' + EOL);
@@ -76,7 +77,8 @@ describe('Overwrite behaviour', () => {
       success: true,
     });
 
-    expect(log.warn).toHaveBeenCalledTimes(2);
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.info).toHaveBeenCalledTimes(1);
 
     expect(fileContents('/foo/fidget.txt')).toBe('weapon' + EOL);
     expect(fileContents('/foo/guitar.js')).toBe('lemon' + EOL);

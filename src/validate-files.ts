@@ -24,7 +24,7 @@ export async function validateFiles(
     const oldLength = chalk.white(oldFiles.length.toString());
     const newLength = chalk.white(newFiles.length.toString());
     log.error(
-      'Error: edited file paths do not match the length of the original list.' +
+      'edited file paths do not match the length of the original list.' +
         `\nExpected ${oldLength}, got ${newLength}.`
     );
     return Promise.reject({ success: false });
@@ -42,7 +42,7 @@ export async function validateFiles(
 
   for (let i = 0; i < newFiles.length; ++i) {
     if (typeof newFiles[i] !== 'string' || !newFiles[i].trim()) {
-      errors.push(`Error: you must provide a destination for file on line ${i + 1}.`);
+      errors.push(`you must provide a destination for file on line ${i + 1}.`);
       continue;
     }
 
@@ -51,13 +51,13 @@ export async function validateFiles(
     let fileRenamed = false;
 
     if (!fs.existsSync(oldFile)) {
-      errors.push(`Error: cannot read/write ${logFile(oldFile)}.`);
+      errors.push(`cannot read/write ${logFile(oldFile)}.`);
       continue;
     }
 
     if (notChildPath(oldFile)) {
       errors.push(
-        `Error: existing file ${logFile(oldFile)} must be a child of the working directory. ` +
+        `existing file ${logFile(oldFile)} must be a child of the working directory. ` +
           'Please start imv in the directory you want to use it.'
       );
       continue;
@@ -65,7 +65,7 @@ export async function validateFiles(
 
     if (notChildPath(newFile)) {
       errors.push(
-        `Error: new file ${logFile(newFile)} must be a child of the working directory. ` +
+        `new file ${logFile(newFile)} must be a child of the working directory. ` +
           'Please start imv in the directory you want to use it.'
       );
       continue;
@@ -77,7 +77,7 @@ export async function validateFiles(
         fileRenamed = true;
       } else {
         errors.push(
-          `Error: cannot overwrite ${logFile(newFile)} with the same file in a different case. ` +
+          `cannot overwrite ${logFile(newFile)} with the same file in a different case. ` +
             'Please use the `overwrite` flag to perform this action.'
         );
         continue;
@@ -86,14 +86,14 @@ export async function validateFiles(
 
     // File exists error
     if (oldFile !== newFile && !okToOverwrite && fs.existsSync(newFile)) {
-      errors.push(`Error: file ${logFile(newFile)} already exists.`);
+      errors.push(`file ${logFile(newFile)} already exists.`);
       continue;
     }
 
     if (fileSeen[newFile]) {
       const lineA = chalk.white((fileSeen[newFile].line + 1).toString());
       const lineB = chalk.white((i + 1).toString());
-      errors.push(`Error: file ${logFile(newFile)} declared twice on line ${lineA} and ${lineB}.`);
+      errors.push(`file ${logFile(newFile)} declared twice on line ${lineA} and ${lineB}.`);
       continue;
     }
 
@@ -101,7 +101,7 @@ export async function validateFiles(
       const oldFmtd = logFile(oldFile);
       const newFmtd = logFile(newFile);
       errors.push(
-        `Error: cannot rename ${oldFmtd} to ${newFmtd} because the new file is also pending movement.`
+        `cannot rename ${oldFmtd} to ${newFmtd} because the new file is also pending movement.`
       );
       continue;
     }

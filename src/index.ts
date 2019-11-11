@@ -131,7 +131,7 @@ async function confirmOverwrite(files: string[]) {
   let answer: string;
 
   log.warn('You are about to overwrite the following files:');
-  log.warn('  ' + files.join(EOL + '  '));
+  log.info('* ' + files.join(EOL + '  '));
 
   do {
     answer = await askUser(rl, 'Are you sure? (y/n)');

@@ -28,9 +28,7 @@ describe('Erroneous input', () => {
     await run(files('/flag.doc'), { editor }, false);
 
     expect(log.error).toHaveBeenCalledTimes(1);
-    expect(log.error).toHaveBeenCalledWith(
-      'Error: you must provide a destination for file on line 1.'
-    );
+    expect(log.error).toHaveBeenCalledWith('you must provide a destination for file on line 1.');
   });
 
   it('cannot run with existing files outside the cwd', async () => {
@@ -40,9 +38,9 @@ describe('Erroneous input', () => {
 
     expect(log.error).toHaveBeenCalledTimes(1);
     expect(log.error).toHaveBeenCalledWith(
-      'Error: existing file tests/fixtures/flag.doc must be a child of the working directory. ' +
+      'existing file tests/fixtures/flag.doc must be a child of the working directory. ' +
         `Please start imv in the directory you want to use it.${EOL}` +
-        'Error: cannot read/write tests/imv/foo/fidget.txt.'
+        'cannot read/write tests/imv/foo/fidget.txt.'
     );
   });
 
@@ -53,7 +51,7 @@ describe('Erroneous input', () => {
 
     expect(log.error).toHaveBeenCalledTimes(1);
     expect(log.error).toHaveBeenCalledWith(
-      'Error: new file tests/fixtures/flag.doc must be a child of the working directory. Please start imv in the directory you want to use it.'
+      'new file tests/fixtures/flag.doc must be a child of the working directory. Please start imv in the directory you want to use it.'
     );
   });
 });
