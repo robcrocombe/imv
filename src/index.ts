@@ -73,7 +73,16 @@ async function promptForNewFiles(oldFiles: string[], opts: Options): Promise<str
   fs.writeFileSync(tmpFile, oldFiles.join(EOL) + EOL, 'utf8');
 
   // Open files for renaming
-  execSync(`${opts.editor} ${tmpFile}`);
+  try {
+    execSync(`${opts.editor} ${tmpFile}`);
+  } catch (e) {
+    if (e && e.signal === 'SIGINT') {
+      // User stopped program, abort gracefully
+      return Promise.reject({ success: false });
+    } else {
+      return Promise.reject(e);
+    }
+  }
 
   const output = fs.readFileSync(tmpFile, 'utf8');
   const newFiles = output.trim().split(EOL);
