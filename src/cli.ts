@@ -9,6 +9,7 @@ program
   .version('1.0.0', '-v, --version', 'output the version number')
   .arguments('<glob>')
   .option('-e, --editor <editor>', 'use this editor to modify your file paths')
+  .option('-g, --gitignore', 'ignore patterns in .gitignore that apply to globbed files')
   .option('-o, --overwrite', 'overwrite existing files')
   .option('-t, --trash', 'send existing files to the trash bin')
   .option('-c, --cleanup', 'remove empty affected folders after moving files')
@@ -19,9 +20,9 @@ if (!program.args.length) {
   exit(false);
 }
 
-const { editor, overwrite, trash, cleanup } = program;
+const { editor, overwrite, trash, cleanup, gitignore } = program;
 
-imv(program.args, { editor, overwrite, trash, cleanup })
+imv(program.args, { editor, overwrite, trash, cleanup, gitignore })
   .then(result => {
     exit(result && result.success);
   })

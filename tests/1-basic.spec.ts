@@ -32,4 +32,16 @@ describe('Basic functionality', () => {
     expect(log.info).toHaveBeenCalledTimes(2);
     expect(log.info).toHaveBeenLastCalledWith('✨ Done!');
   });
+
+  it('ignores matched files in .gitignore', async () => {
+    setEdits('/flag2.doc', '/bar2/opera.doc');
+
+    await run(files('/**/*.doc'), { editor, gitignore: true }, true);
+
+    expect(fileExists('/flag.doc')).toBeFalsy();
+    expect(fileContents('/flag2.doc')).toBe('island' + EOL);
+
+    expect(fileExists('/bar/opera.doc')).toBeFalsy();
+    expect(fileContents('/bar2/opera.doc')).toBe('pump' + EOL);
+  });
 });

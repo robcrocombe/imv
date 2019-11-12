@@ -5,6 +5,7 @@ interface Options {
   overwrite?: boolean;
   trash?: boolean;
   cleanup?: boolean;
+  gitignore?: boolean;
 }
 
 interface RunResult {

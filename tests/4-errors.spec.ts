@@ -31,6 +31,18 @@ describe('Erroneous input', () => {
     expect(log.error).toHaveBeenCalledWith('you must provide a destination for file on line 1.');
   });
 
+  it('cannot run with an expanded glob and gitignore=true', async () => {
+    setEdits('/new1.doc', '/foo/new2.js');
+
+    await run([file('/flag.doc'), file('/foo/dollar.js')], { editor, gitignore: true }, false);
+
+    expect(log.error).toHaveBeenCalledTimes(1);
+    expect(log.error).toHaveBeenCalledWith(
+      'Your input will not respect the `gitignore` option because it was expanded before it reached imv. ' +
+        'Please wrap your glob pattern in quotes to use `gitignore`.'
+    );
+  });
+
   it('cannot run with existing files outside the cwd', async () => {
     setEdits('/foo/new1.js', '/foo/new2.js');
 
