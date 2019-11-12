@@ -39,7 +39,7 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     sanitisedInput.length > 1 ? sanitisedInput : globby.sync(sanitisedInput, { dot: true });
 
   if (!oldFiles || !oldFiles.length) {
-    log.warn(`No files found matching your input. Aborting.`);
+    log.warn('No files found matching your input. Aborting.');
     return { success: true };
   }
 
