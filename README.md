@@ -13,21 +13,27 @@ npm install -g imv
 ## Usage
 
 1) You give imv a [glob pattern](https://github.com/sindresorhus/globby) of files you want to move or rename.
+
 ```
 imv --cleanup './home/*.png'
 ```
+
 2) It opens the list in your favorite code editor (either by the `--editor` param or automatically via your git config).
+
 ```
 ./home/customer.png
 ./home/puppy.png
 ./home/cat.png
 ```
+
 3) You make the edits you want, with the tools you already use like multiple cursors and regex.
+
 ```
 ./home-page/user.png
 ./home-page/puppy.png
 ./home-page/cat.png
 ```
+
 4) Save the file and close it …sounds familiar to git commit/rebase?
 5) imv will make the changes, the file on each line becomes the new file location.
 6) imv deletes the old `/home` directory because we specified `--cleanup` and all the files have moved.
