@@ -47,7 +47,8 @@ imv -- interactive move files
 Options:
   -v, --version          output the version number
   -e, --editor <editor>  use this editor to modify your file paths
-  -g, --gitignore        ignore patterns in .gitignore that apply to globbed files
+  -i, --ignore <glob>    ignore files that match this glob pattern
+  -g, --gitignore        ignore files that match patterns in .gitignore
   -o, --overwrite        overwrite existing files
   -t, --trash            send existing files to the trash bin
   -c, --cleanup          remove empty affected folders after moving files

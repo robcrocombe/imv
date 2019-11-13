@@ -10,7 +10,7 @@ program
   .arguments('<glob>')
   .option('-e, --editor <editor>', 'use this editor to modify your file paths')
   .option('-i, --ignore <glob>', 'ignore files that match this glob pattern')
-  .option('-g, --gitignore', 'ignore patterns in .gitignore that apply to globbed files')
+  .option('-g, --gitignore', 'ignore files that match patterns in .gitignore')
   .option('-o, --overwrite', 'overwrite existing files')
   .option('-t, --trash', 'send existing files to the trash bin')
   .option('-c, --cleanup', 'remove empty affected folders after moving files')
