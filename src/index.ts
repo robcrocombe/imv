@@ -20,6 +20,7 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     overwrite: !!args.overwrite,
     trash: !!args.trash,
     cleanup: !!args.cleanup,
+    ignore: args.ignore,
     gitignore: !!args.gitignore,
   };
 
@@ -39,10 +40,10 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     ? input.filter(Boolean).map(p => normalizePath(p))
     : [];
 
-  if (opts.gitignore && sanitisedInput.length > 1) {
+  if ((opts.ignore || opts.gitignore) && sanitisedInput.length > 1) {
     log.error(
-      'Your input will not respect the `gitignore` option because it was expanded before it reached imv. ' +
-        'Please wrap your glob pattern in quotes to use `gitignore`.'
+      'Your input will not respect `ignore` or `gitignore` because it was expanded before it reached imv. ' +
+        'Please wrap your glob pattern in quotes to use those options.'
     );
     return Promise.reject({ success: false });
   }
@@ -50,7 +51,11 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
   const oldFiles: string[] =
     sanitisedInput.length > 1
       ? sanitisedInput
-      : globby.sync(sanitisedInput, { dot: true, gitignore: opts.gitignore });
+      : globby.sync(sanitisedInput, {
+          dot: true,
+          gitignore: opts.gitignore,
+          ignore: opts.ignore ? [normalizePath(opts.ignore)] : [],
+        });
 
   if (!oldFiles || !oldFiles.length) {
     log.warn('No files found matching your input. Aborting.');

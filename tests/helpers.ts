@@ -34,5 +34,13 @@ export function fileContents(p: string): string {
 }
 
 export function run(files: string[], opts: Options, success: boolean): Promise<any> {
-  return expect(imv(files, opts))[success ? 'resolves' : 'rejects'].toStrictEqual({ success });
+  const p = imv(files, opts).catch(e => {
+    // Jest swallows stack traces so log it before passing to expect()
+    if (e && e.stack) {
+      console.log(e.stack);
+    }
+    throw e;
+  });
+
+  return expect(p)[success ? 'resolves' : 'rejects'].toStrictEqual({ success });
 }

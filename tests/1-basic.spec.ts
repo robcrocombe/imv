@@ -1,6 +1,6 @@
 import { EOL } from 'os';
 import * as log from '../src/log';
-import { setEdits, editor, run, files, fileExists, fileContents } from './helpers';
+import { setEdits, editor, run, file, files, fileExists, fileContents } from './helpers';
 
 describe('Basic functionality', () => {
   it('moves a single file', async () => {
@@ -43,5 +43,17 @@ describe('Basic functionality', () => {
 
     expect(fileExists('/bar/opera.doc')).toBeFalsy();
     expect(fileContents('/bar2/opera.doc')).toBe('pump' + EOL);
+  });
+
+  it('ignores files with the ignore option', async () => {
+    setEdits('/flag2.doc', '/bar2/myth.doc');
+
+    await run(files('/**/*.doc'), { editor, ignore: file('foo') }, true);
+
+    expect(fileExists('/flag.doc')).toBeFalsy();
+    expect(fileContents('/flag2.doc')).toBe('island' + EOL);
+
+    expect(fileExists('/bar/opera.doc')).toBeFalsy();
+    expect(fileContents('/bar2/myth.doc')).toBe('pump' + EOL);
   });
 });

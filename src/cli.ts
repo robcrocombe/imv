@@ -6,9 +6,10 @@ import * as log from './log';
 
 program
   .description('imv -- interactive move files')
-  .version('1.0.0', '-v, --version', 'output the version number')
+  .version('1.3.0', '-v, --version', 'output the version number')
   .arguments('<glob>')
   .option('-e, --editor <editor>', 'use this editor to modify your file paths')
+  .option('-i, --ignore <glob>', 'ignore files that match this glob pattern')
   .option('-g, --gitignore', 'ignore patterns in .gitignore that apply to globbed files')
   .option('-o, --overwrite', 'overwrite existing files')
   .option('-t, --trash', 'send existing files to the trash bin')
@@ -20,9 +21,7 @@ if (!program.args.length) {
   exit(false);
 }
 
-const { editor, overwrite, trash, cleanup, gitignore } = program;
-
-imv(program.args, { editor, overwrite, trash, cleanup, gitignore })
+imv(program.args, program as Options)
   .then(result => {
     exit(result && result.success);
   })
