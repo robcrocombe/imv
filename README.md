@@ -36,7 +36,7 @@ imv --cleanup './home/*.png'
 
 4) Save the file and close it …sounds familiar to git commit/rebase?
 5) imv will make the changes, the file on each line becomes the new file location.
-6) imv deletes the old `/home` directory because we specified `--cleanup` and all the files have moved.
+6) imv deletes the old `/home` directory because we specified `--cleanup` and the directory is now empty.
 7) You're done!
 
 ```
