@@ -46,6 +46,7 @@ beforeEach(() => {
   mockedRl.answerNo();
 });
 
+// eslint-disable-next-line jest/no-done-callback
 afterEach(cb => {
   rimraf(tempDir, cb);
 });
