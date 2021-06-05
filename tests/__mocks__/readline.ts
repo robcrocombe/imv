@@ -1,5 +1,3 @@
-import 'jest';
-
 let answer: string;
 
 export function answerYes() {

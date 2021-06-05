@@ -1,4 +1,3 @@
-import 'jest';
 import * as fs from 'fs-extra';
 import * as cp from 'child_process';
 import * as rl from 'readline';
