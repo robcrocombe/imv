@@ -1,4 +1,3 @@
-import 'jest';
 import * as fs from 'fs-extra';
 import * as cp from 'child_process';
 import * as rl from 'readline';
@@ -13,7 +12,7 @@ import * as mockRl from './__mocks__/readline';
 /* eslint-enable jest/no-mocks-import */
 import { tempDir, editor } from './helpers';
 
-chalk.enabled = false;
+chalk.level = 0;
 
 jest.mock('child_process');
 jest.mock('readline');
@@ -46,6 +45,7 @@ beforeEach(() => {
   mockedRl.answerNo();
 });
 
+// eslint-disable-next-line jest/no-done-callback
 afterEach(cb => {
   rimraf(tempDir, cb);
 });

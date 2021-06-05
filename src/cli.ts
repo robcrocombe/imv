@@ -6,14 +6,14 @@ import * as log from './log';
 
 program
   .description('imv -- interactive move files')
-  .version('1.3.0', '-v, --version', 'output the version number')
+  .version('1.4.0', '-v, --version', 'output the version number')
   .arguments('<glob>')
   .option('-e, --editor <editor>', 'use this editor to modify your file paths')
   .option('-i, --ignore <glob>', 'ignore files that match this glob pattern')
   .option('-g, --gitignore', 'ignore files that match patterns in .gitignore')
   .option('-o, --overwrite', 'overwrite existing files')
   .option('-t, --trash', 'send existing files to the trash bin')
-  .option('-c, --cleanup', 'remove empty affected folders after moving files')
+  .option('-k, --keep-empty', 'keep empty affected folders after moving files')
   .parse(process.argv);
 
 if (!program.args.length) {
@@ -21,7 +21,7 @@ if (!program.args.length) {
   exit(false);
 }
 
-imv(program.args, program as Options)
+imv(program.args, program.opts() as Options)
   .then(result => {
     exit(result && result.success);
   })
