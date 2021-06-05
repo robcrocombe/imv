@@ -13,7 +13,7 @@ import * as mockRl from './__mocks__/readline';
 /* eslint-enable jest/no-mocks-import */
 import { tempDir, editor } from './helpers';
 
-chalk.enabled = false;
+chalk.level = 0;
 
 jest.mock('child_process');
 jest.mock('readline');
