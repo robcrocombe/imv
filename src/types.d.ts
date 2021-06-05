@@ -4,7 +4,7 @@ interface Options {
   editor?: string;
   overwrite?: boolean;
   trash?: boolean;
-  cleanup?: boolean;
+  keepEmpty?: boolean;
   ignore?: string;
   gitignore?: boolean;
 }

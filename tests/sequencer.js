@@ -1,4 +1,3 @@
-// eslint-disable-next-line jest/no-jest-import
 const Sequencer = require('@jest/test-sequencer').default;
 
 // https://jestjs.io/docs/en/next/configuration#testsequencer-string

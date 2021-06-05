@@ -19,7 +19,7 @@ export async function imv(input: string[], args: Options): Promise<RunResult> {
     editor: args.editor || getGitEditor(),
     overwrite: !!args.overwrite,
     trash: !!args.trash,
-    cleanup: !!args.cleanup,
+    keepEmpty: !!args.keepEmpty,
     ignore: args.ignore,
     gitignore: !!args.gitignore,
   };
@@ -76,7 +76,7 @@ async function execute(oldFiles: string[], opts: Options): Promise<RunResult> {
 
   await moveFiles(fileMoves);
 
-  if (opts.cleanup) {
+  if (!opts.keepEmpty) {
     const allFilePaths = [...oldFiles, ...newFiles];
     await cleanup(allFilePaths);
   }
